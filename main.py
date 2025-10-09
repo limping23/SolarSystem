@@ -36,8 +36,8 @@ def remove_system_momentum(bodies):
 def distance(p1: data.Point, p2: data.Point) -> float: #Distance between 2 points
     return sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2)
 
-def law_ug(m1: float, m2: float, R: float, softening = 10e7) -> float: #Law of Universal Gravitation
-    return data.constants["G"] * m1 * m2 / max(R**2, softening)
+def law_ug(m1: float, m2: float, R: float, softening = 0) -> float: #Law of Universal Gravitation
+    return data.constants["G"] * m1 * m2 / R**2 + softening
 
 def angle(position: data.Vector) -> float: #Angle of vector relative to x
     delta_x = position.x2 - position.x1
@@ -58,11 +58,7 @@ def update_position(body: CelestialBody, dt: float = 3600) -> None:
     for other_body in data.bodies:
         if other_body == body:
             continue
-        if body.name in jupiter_moons or body.name == "Moon":
-            soft = 10e15
-        else:
-            soft = 10e7
-        force = law_ug(body.mass, other_body.mass, distance(body.position, other_body.position), soft)# The force with which a particular planet is acted upon by another planet
+        force = law_ug(body.mass, other_body.mass, distance(body.position, other_body.position))# The force with which a particular planet is acted upon by another planet
         force_angle = angle(data.Vector(other_body.position.x, other_body.position.y, body.position))  # Angle of said force relative to x
         forces.append((force, force_angle))
     Sum_forces = sum_forces(forces) #The force with which all planets are acted upon by another planet and its direction

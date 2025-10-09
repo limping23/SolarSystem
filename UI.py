@@ -13,16 +13,16 @@ canvas1.place(x=root.winfo_screenwidth()-350, y=0)
 
 running = True
 
-for body in data.bodies:
-    if body.name == "Moon":
-        main.set_circular_velocity(body, data.Earth)
-    elif body.name in data.jupiter_moons:
-        main.set_circular_velocity(body, data.Jupiter)
-    else:
-        main.set_circular_velocity(body, data.Sun)
-
 
 def update():
+    main.remove_system_momentum(data.bodies)
+    for body in data.bodies:
+        if body.name == "Moon":
+            main.set_circular_velocity(body, data.Earth)
+        elif body.name in data.jupiter_moons:
+            main.set_circular_velocity(body, data.Jupiter)
+        # else:
+        #     main.set_circular_velocity(body, data.Sun)
     if not running:
         return
 
@@ -32,15 +32,6 @@ def update():
             if body.name == "Sun":
                 continue
             main.update_position(body)
-        if i % 2 == 0:
-            main.remove_system_momentum(data.bodies)
-            for body in data.bodies:
-                if body.name == "Moon":
-                    main.set_circular_velocity(body, data.Earth)
-                elif body.name in data.jupiter_moons:
-                    main.set_circular_velocity(body, data.Jupiter)
-                else:
-                    main.set_circular_velocity(body, data.Sun)
 
 
     # Отрисовка
@@ -48,8 +39,8 @@ def update():
 
     # Рисуем планеты
     for body in data.bodies:
-        x = body.position.x * body.scaler * data.constants["scale"] + root.winfo_screenwidth()/2
-        y = body.position.y * body.scaler * data.constants["scale"] + root.winfo_screenheight()/2
+        x = body.position.x * body.scaler * data.constants["scale"] + 735
+        y = body.position.y * body.scaler * data.constants["scale"] + 478
         canvas.create_oval(
             x - body.screen_radius,
             y - body.screen_radius,

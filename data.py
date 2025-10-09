@@ -5,7 +5,7 @@ from typing import Self
 constants = {
     'G': 6.674e-11,
     'scale': 5e-10,
-    'time_step': 100,
+    'time_step': 300,
     "sun_mass": 1.989e30,
     "running": True
 }
@@ -137,7 +137,7 @@ Mercury = CelestialBody(
     screen_radius = 5,
     scaler = 1.2,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 000
 )
 
 Venus = CelestialBody(
@@ -150,7 +150,7 @@ Venus = CelestialBody(
     screen_radius = 6,
     scaler = 1.18,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 000
 )
 
 Earth = CelestialBody(
@@ -163,7 +163,7 @@ Earth = CelestialBody(
     screen_radius = 6,
     scaler = 1.2,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 000
 )
 
 Moon = CelestialBody(
@@ -189,7 +189,7 @@ Mars = CelestialBody(
     screen_radius = 5,
     scaler = 1.1,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 000
 )
 
 Jupiter = CelestialBody(
@@ -210,7 +210,7 @@ Io = CelestialBody(
     mass = 8.93e22,
     radius = 1.821e6,
     position = Point(Jupiter.position.x, Jupiter.position.y + 4.217e8),
-    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x,Jupiter.Orbital_speed.y + 17330),
+    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x, Jupiter.Orbital_speed.y + 17330),
     color="#E5B73B",
     screen_radius = 2,
     scaler = 0.46,
@@ -223,7 +223,7 @@ Europa = CelestialBody(
     mass = 4.8e22,
     radius = 1.561e6,
     position = Point(Jupiter.position.x, Jupiter.position.y + 6.711e8),
-    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x,Jupiter.Orbital_speed.y + 13740),
+    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x, Jupiter.Orbital_speed.y + 13740),
     color="#D9C7A9",
     screen_radius = 2,
     scaler = 0.45,
@@ -236,7 +236,7 @@ Ganymede = CelestialBody(
     mass = 1.48e23,
     radius = 2.634e6,
     position = Point(Jupiter.position.x, Jupiter.position.y + 1.070e9),
-    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x,Jupiter.Orbital_speed.y + 10880),
+    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x, Jupiter.Orbital_speed.y + 10880),
     color="#92877D",
     screen_radius = 2,
     scaler = 0.44,
@@ -249,7 +249,7 @@ Callisto = CelestialBody(
     mass = 1.08e23,
     radius = 2.41e6,
     position = Point(Jupiter.position.x, Jupiter.position.y + 1.883e9),
-    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x,Jupiter.Orbital_speed.y + 8200),
+    Orbital_speed = OrbitalSpeed(Jupiter.Orbital_speed.x, Jupiter.Orbital_speed.y + 8200),
     color="#5E4B3C",
     screen_radius = 2,
     scaler = 0.42,
@@ -267,7 +267,7 @@ Saturn = CelestialBody(
     screen_radius = 10,
     scaler = 0.39,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 000
 )
 
 Uranus = CelestialBody(
@@ -280,7 +280,7 @@ Uranus = CelestialBody(
     screen_radius = 9,
     scaler = 0.25,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 000
 )
 
 Neptune = CelestialBody(
@@ -293,7 +293,7 @@ Neptune = CelestialBody(
     screen_radius = 9,
     scaler = 0.19,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 000
 )
 
 
