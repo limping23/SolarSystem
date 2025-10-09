@@ -4,10 +4,10 @@ import data, main
 root = tk.Tk()
 root.title("Solar System")
 root.attributes("-fullscreen", 1)
-root.configure(bg="#002137")
-canvas = tk.Canvas(root, width=root.winfo_screenwidth(), highlightthickness=0, height=root.winfo_screenheight(), bg="#002137")
+root.configure(bg="#000000")
+canvas = tk.Canvas(root, width=root.winfo_screenwidth(), highlightthickness=0, height=root.winfo_screenheight(), bg="#000000")
 canvas.pack()
-canvas1 = tk.Canvas(root, bg='#003841', width=350, height=root.winfo_screenheight()-750)
+canvas1 = tk.Canvas(root, bg='#F2DDC6', width=350, height=root.winfo_screenheight()-750)
 canvas1.place(x=root.winfo_screenwidth()-350, y=0)
 # canvas1.create_line(0, canvas1.winfo_screenheight()/2, 500, canvas1.winfo_screenheight()/2, width=1, fill="white")
 
