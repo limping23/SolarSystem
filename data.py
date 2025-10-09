@@ -5,9 +5,9 @@ from typing import Self
 constants = {
     'G': 6.674e-11,
     'scale': 5e-10,
-    'time_step': 300,
+    'time_step': 150,
     "sun_mass": 1.989e30,
-    "running": True
+    "dt": 750
 }
 
 
@@ -100,6 +100,9 @@ class CelestialBody:
     trail: list
     max_trail_length: float
     scaler: float
+    update_counter: int
+    trail_update_interval: int
+    min_trail_length: float
 
     @property
     def info(self) -> dict:
@@ -124,7 +127,10 @@ Sun = CelestialBody(
     screen_radius = 20,
     scaler = 1,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 0,
+    update_counter = 0,
+    trail_update_interval = 1,
+    min_trail_length = 0
 )
 
 Mercury = CelestialBody(
@@ -137,7 +143,10 @@ Mercury = CelestialBody(
     screen_radius = 5,
     scaler = 1.2,
     trail = [],
-    max_trail_length = 000
+    max_trail_length = 500,
+    update_counter = 0,
+    trail_update_interval = 3,
+    min_trail_length = 2.0
 )
 
 Venus = CelestialBody(
@@ -150,7 +159,10 @@ Venus = CelestialBody(
     screen_radius = 6,
     scaler = 1.18,
     trail = [],
-    max_trail_length = 000
+    max_trail_length = 400,
+    update_counter = 0,
+    trail_update_interval = 3,
+    min_trail_length = 2.0
 )
 
 Earth = CelestialBody(
@@ -163,7 +175,10 @@ Earth = CelestialBody(
     screen_radius = 6,
     scaler = 1.2,
     trail = [],
-    max_trail_length = 000
+    max_trail_length = 350,
+    update_counter = 0,
+    trail_update_interval = 4,
+    min_trail_length = 2.5
 )
 
 Moon = CelestialBody(
@@ -176,7 +191,10 @@ Moon = CelestialBody(
     screen_radius = 3,
     scaler = 1.36,
     trail = [],
-    max_trail_length = Earth.max_trail_length
+    max_trail_length = 0,
+    update_counter = Earth.update_counter,
+    trail_update_interval = Earth.trail_update_interval,
+    min_trail_length = Earth.min_trail_length,
 )
 
 Mars = CelestialBody(
@@ -189,7 +207,10 @@ Mars = CelestialBody(
     screen_radius = 5,
     scaler = 1.1,
     trail = [],
-    max_trail_length = 000
+    max_trail_length = 350,
+    update_counter = 0,
+    trail_update_interval = 5,
+    min_trail_length = 3.0
 )
 
 Jupiter = CelestialBody(
@@ -202,7 +223,10 @@ Jupiter = CelestialBody(
     screen_radius = 10,
     scaler = 0.5,
     trail = [],
-    max_trail_length = 0
+    max_trail_length = 330,
+    update_counter = 0,
+    trail_update_interval = 7,
+    min_trail_length = 4.0
 )
 
 Io = CelestialBody(
@@ -215,7 +239,10 @@ Io = CelestialBody(
     screen_radius = 2,
     scaler = 0.46,
     trail = [],
-    max_trail_length = Jupiter.max_trail_length
+    max_trail_length = 0,
+    update_counter = Jupiter.update_counter,
+    trail_update_interval = Jupiter.trail_update_interval,
+    min_trail_length = Jupiter.min_trail_length,
 )
 
 Europa = CelestialBody(
@@ -228,7 +255,10 @@ Europa = CelestialBody(
     screen_radius = 2,
     scaler = 0.45,
     trail = [],
-    max_trail_length = Jupiter.max_trail_length
+    max_trail_length = 0,
+    update_counter = Jupiter.update_counter,
+    trail_update_interval = Jupiter.trail_update_interval,
+    min_trail_length = Jupiter.min_trail_length,
 )
 
 Ganymede = CelestialBody(
@@ -241,7 +271,10 @@ Ganymede = CelestialBody(
     screen_radius = 2,
     scaler = 0.44,
     trail = [],
-    max_trail_length = Jupiter.max_trail_length
+    max_trail_length = 0,
+    update_counter = Jupiter.update_counter,
+    trail_update_interval = Jupiter.trail_update_interval,
+    min_trail_length = Jupiter.min_trail_length,
 )
 
 Callisto = CelestialBody(
@@ -254,7 +287,10 @@ Callisto = CelestialBody(
     screen_radius = 2,
     scaler = 0.42,
     trail = [],
-    max_trail_length = Jupiter.max_trail_length
+    max_trail_length = 0,
+    update_counter = Jupiter.update_counter,
+    trail_update_interval = Jupiter.trail_update_interval,
+    min_trail_length = Jupiter.min_trail_length,
 )
 
 Saturn = CelestialBody(
@@ -267,7 +303,10 @@ Saturn = CelestialBody(
     screen_radius = 10,
     scaler = 0.39,
     trail = [],
-    max_trail_length = 000
+    max_trail_length = 500,
+    update_counter = 0,
+    trail_update_interval = 9,
+    min_trail_length = 5.0
 )
 
 Uranus = CelestialBody(
@@ -280,7 +319,10 @@ Uranus = CelestialBody(
     screen_radius = 9,
     scaler = 0.25,
     trail = [],
-    max_trail_length = 000
+    max_trail_length = 500,
+    update_counter = 0,
+    trail_update_interval = 10,
+    min_trail_length = 5.0
 )
 
 Neptune = CelestialBody(
@@ -293,7 +335,10 @@ Neptune = CelestialBody(
     screen_radius = 9,
     scaler = 0.19,
     trail = [],
-    max_trail_length = 000
+    max_trail_length = 600,
+    update_counter = 0,
+    trail_update_interval = 10,
+    min_trail_length = 5.0
 )
 
 

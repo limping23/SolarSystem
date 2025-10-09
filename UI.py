@@ -1,18 +1,25 @@
 import tkinter as tk
 import data, main
 
+
+def toggle_trails():
+    global show_trails
+    show_trails = not show_trails
+
+
 root = tk.Tk()
 root.title("Solar System")
 root.attributes("-fullscreen", 1)
 root.configure(bg="#000000")
 canvas = tk.Canvas(root, width=root.winfo_screenwidth(), highlightthickness=0, height=root.winfo_screenheight(), bg="#000000")
 canvas.pack()
-canvas1 = tk.Canvas(root, bg='#F2DDC6', width=350, height=root.winfo_screenheight()-750)
-canvas1.place(x=root.winfo_screenwidth()-350, y=0)
+# canvas1 = tk.Canvas(root, bg='#F2DDC6', width=350, height=root.winfo_screenheight()-750)
+# canvas1.place(x=root.winfo_screenwidth()-350, y=0)
+button = tk.Button(root, highlightcolor="yellow", text="Toggle Trails", command=toggle_trails)
+button.place(x=root.winfo_screenwidth()-115, y=0)
 # canvas1.create_line(0, canvas1.winfo_screenheight()/2, 500, canvas1.winfo_screenheight()/2, width=1, fill="white")
 
-running = True
-
+show_trails = True
 
 def update():
     main.remove_system_momentum(data.bodies)
@@ -21,10 +28,8 @@ def update():
             main.set_circular_velocity(body, data.Earth)
         elif body.name in data.jupiter_moons:
             main.set_circular_velocity(body, data.Jupiter)
-        # else:
-        #     main.set_circular_velocity(body, data.Sun)
-    if not running:
-        return
+        else:
+            main.set_circular_velocity(body, data.Sun)
 
     # Обновление позиций всех тел
     for i in range(data.constants["time_step"]):
@@ -36,6 +41,10 @@ def update():
 
     # Отрисовка
     canvas.delete("all")
+
+    for body in data.bodies:
+        if show_trails and len(body.trail) > 1:
+            canvas.create_line(body.trail, fill=body.color, width=1, smooth = True)
 
     # Рисуем планеты
     for body in data.bodies:
@@ -51,9 +60,6 @@ def update():
         )
         # Подписи планет
         canvas.create_text(x, y - body.screen_radius - 10, text=body.name, fill="white")
-
-        if len(body.trail) > 1:
-            canvas.create_line(body.trail, fill=body.color, width=1)
 
 
     root.after(10, update)  # ~60 FPS

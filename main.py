@@ -6,10 +6,6 @@ from data import CelestialBody, jupiter_moons
 
 
 def set_circular_velocity(body, center):
-    """
-    Устанавливает body.Orbital_speed так, чтобы body был на (примерно) круговой орбите вокруг center.
-    Если override_distance задан, используется он (вместо расстояния текущих позиций).
-    """
     dx = body.position.x - center.position.x
     dy = body.position.y - center.position.y
     r = math.hypot(dx, dy)
@@ -36,7 +32,7 @@ def remove_system_momentum(bodies):
 def distance(p1: data.Point, p2: data.Point) -> float: #Distance between 2 points
     return sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2)
 
-def law_ug(m1: float, m2: float, R: float, softening = 0) -> float: #Law of Universal Gravitation
+def law_ug(m1: float, m2: float, R: float, softening = 1e5) -> float: #Law of Universal Gravitation
     return data.constants["G"] * m1 * m2 / R**2 + softening
 
 def angle(position: data.Vector) -> float: #Angle of vector relative to x
@@ -53,7 +49,7 @@ def sum_forces(forces: list[tuple]) -> tuple: #Sum of all forces acting on some 
     force_res = sqrt(force_res_x**2 + force_res_y**2)
     return force_res, math.atan2(force_res_y, force_res_x)
 
-def update_position(body: CelestialBody, dt: float = 3600) -> None:
+def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> None:
     forces = []
     for other_body in data.bodies:
         if other_body == body:
@@ -66,13 +62,25 @@ def update_position(body: CelestialBody, dt: float = 3600) -> None:
     acceleration = data.Acceleration(acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])) #True acceleration in the Oxy axis
     movement = body.Orbital_speed * dt + acceleration * dt**2 / 2
     body.position += movement #Setting new pos for planet
-    body.trail.append(
-        (body.position.x * body.scaler * data.constants["scale"] + 735,
-        body.position.y * body.scaler * data.constants["scale"] + 478)
-    )  # Adding a new part of trail
-    if len(body.trail) > body.max_trail_length:
-        body.trail.pop(0)
     body.Orbital_speed += acceleration * dt #Setting new speed for planet
+
+    body.update_counter += 1
+    if body.update_counter % body.trail_update_interval == 0:
+        screen_x = body.position.x * body.scaler * data.constants["scale"] + 735
+        screen_y = body.position.y * body.scaler * data.constants["scale"] + 478
+        if len(body.trail) == 0 or distance_to_last(body.trail, screen_x, screen_y) > body.min_trail_length:
+            body.trail.append((screen_x, screen_y))
+            if len(body.trail) > body.max_trail_length:
+                body.trail.pop(0)
+
+def distance_to_last(trail, x, y):
+    """Вычисляет расстояние от последней точки в траектории до новой точки"""
+    if not trail:
+        return float('inf')
+    last_x, last_y = trail[-1]
+    return sqrt((x - last_x) ** 2 + (y - last_y) ** 2)
+
+
 
 
 
