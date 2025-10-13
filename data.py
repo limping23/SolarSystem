@@ -99,7 +99,7 @@ class CelestialBody:
     Orbital_speed: OrbitalSpeed
     color: str
     screen_radius: float
-    trail: list
+    trail: list[tuple]
     max_trail_length: float
     scaler: float
     update_counter: int
@@ -145,7 +145,7 @@ Mercury = CelestialBody(
     mass=3.301e23,
     radius=2.44e6,
     position=Point(5.79e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 47870),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#908D84",
     screen_radius=5,
     scaler=1.2,
@@ -161,7 +161,7 @@ Venus = CelestialBody(
     mass=4.867e24,
     radius=6.052e6,
     position=Point(1.082e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 35020),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#D6C690",
     screen_radius=6,
     scaler=1.18,
@@ -177,7 +177,7 @@ Earth = CelestialBody(
     mass=5.972e24,
     radius=6.371e6,
     position=Point(1.496e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 29780),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#1F75FE",
     screen_radius=6,
     scaler=1.2,
@@ -192,12 +192,8 @@ Moon = CelestialBody(
     name='Moon',
     mass=7.342e22,
     radius=1.737e6,
-    position=Point(
-        Earth.position.x,
-        Earth.position.y + 3.844e8),
-    Orbital_speed=OrbitalSpeed(
-        Earth.Orbital_speed.x,
-        Earth.Orbital_speed.y + 1023),
+    position=Point(Earth.position.x, Earth.position.y + 3.844e8),
+    Orbital_speed=OrbitalSpeed(0,0),
     color="#C2B280",
     screen_radius=3,
     scaler=1.36,
@@ -213,7 +209,7 @@ Mars = CelestialBody(
     mass=6.417e23,
     radius=3.39e6,
     position=Point(2.279e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 24070),
+    Orbital_speed=OrbitalSpeed(0, 00),
     color="#C1440E",
     screen_radius=5,
     scaler=1.1,
@@ -229,7 +225,7 @@ Jupiter = CelestialBody(
     mass=1.898e27,
     radius=6.9911e7,
     position=Point(7.783e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 13070),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#D2B48C",
     screen_radius=10,
     scaler=0.5,
@@ -244,12 +240,8 @@ Io = CelestialBody(
     name='Io',
     mass=8.93e22,
     radius=1.821e6,
-    position=Point(
-        Jupiter.position.x,
-        Jupiter.position.y + 4.217e8),
-    Orbital_speed=OrbitalSpeed(
-        Jupiter.Orbital_speed.x,
-        Jupiter.Orbital_speed.y + 17330),
+    position=Point(Jupiter.position.x, Jupiter.position.y + 4.217e8),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#E5B73B",
     screen_radius=2,
     scaler=0.46,
@@ -264,12 +256,8 @@ Europa = CelestialBody(
     name='Europa',
     mass=4.8e22,
     radius=1.561e6,
-    position=Point(
-        Jupiter.position.x,
-        Jupiter.position.y + 6.711e8),
-    Orbital_speed=OrbitalSpeed(
-        Jupiter.Orbital_speed.x,
-        Jupiter.Orbital_speed.y + 13740),
+    position=Point(Jupiter.position.x, Jupiter.position.y + 6.711e8),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#D9C7A9",
     screen_radius=2,
     scaler=0.45,
@@ -284,12 +272,8 @@ Ganymede = CelestialBody(
     name='Ganymede',
     mass=1.48e23,
     radius=2.634e6,
-    position=Point(
-        Jupiter.position.x,
-        Jupiter.position.y + 1.070e9),
-    Orbital_speed=OrbitalSpeed(
-        Jupiter.Orbital_speed.x,
-        Jupiter.Orbital_speed.y + 10880),
+    position=Point(Jupiter.position.x, Jupiter.position.y + 1.070e9),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#92877D",
     screen_radius=2,
     scaler=0.44,
@@ -304,12 +288,8 @@ Callisto = CelestialBody(
     name='Callisto',
     mass=1.08e23,
     radius=2.41e6,
-    position=Point(
-        Jupiter.position.x,
-        Jupiter.position.y + 1.883e9),
-    Orbital_speed=OrbitalSpeed(
-        Jupiter.Orbital_speed.x,
-        Jupiter.Orbital_speed.y + 8200),
+    position=Point(Jupiter.position.x, Jupiter.position.y + 1.883e9),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#5E4B3C",
     screen_radius=2,
     scaler=0.42,
@@ -325,7 +305,7 @@ Saturn = CelestialBody(
     mass=5.683e26,
     radius=5.8232e7,
     position=Point(1.429e12, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 9690),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#F5DEB3",
     screen_radius=10,
     scaler=0.39,
@@ -341,7 +321,7 @@ Uranus = CelestialBody(
     mass=8.681e25,
     radius=2.5362e7,
     position=Point(2.871e12, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 6810),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#A6E7E3",
     screen_radius=9,
     scaler=0.25,
@@ -357,7 +337,7 @@ Neptune = CelestialBody(
     mass=1.024e26,
     radius=2.4622e7,
     position=Point(4.504e12, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 5430),
+    Orbital_speed=OrbitalSpeed(0, 0),
     color="#2E3DD3",
     screen_radius=9,
     scaler=0.19,

@@ -4,7 +4,7 @@ from math import sqrt, cos, sin
 from data import CelestialBody
 
 
-def set_circular_velocity(body, center):
+def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
     dx = body.position.x - center.position.x
     dy = body.position.y - center.position.y
     r = math.hypot(dx, dy)
@@ -18,7 +18,7 @@ def set_circular_velocity(body, center):
     body.Orbital_speed.y = center.Orbital_speed.y + v_mag * ty
 
 # Barycenter
-def remove_system_momentum(bodies):
+def remove_system_momentum(bodies: list[CelestialBody]) -> None:
     px = sum(body.mass * body.Orbital_speed.x for body in bodies)
     py = sum(body.mass * body.Orbital_speed.y for body in bodies)
     M = sum(body.mass for body in bodies)
@@ -31,7 +31,7 @@ def remove_system_momentum(bodies):
 def distance(p1: data.Point, p2: data.Point) -> float: #Distance between 2 points
     return math.hypot(p1.x - p2.x, p1.y - p2.y)
 
-def law_ug(m1: float, m2: float, R: float, softening = 0) -> float: #Law of Universal Gravitation
+def law_ug(m1: float, m2: float, R: float, softening: float = 0) -> float: #Law of Universal Gravitation
     return data.constants["G"] * m1 * m2 / R**2 + softening
 
 def angle(position: data.Vector) -> float: #Angle of vector relative to x
@@ -74,11 +74,11 @@ def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> No
                 body.trail.pop(0)
 
 # Distance from last trail point to current
-def distance_to_last(trail, x, y):
+def distance_to_last(trail: list[tuple], x: float, y: float) -> float:
     if not trail:
         return float('inf')
     last_x, last_y = trail[-1]
-    return sqrt((x - last_x) ** 2 + (y - last_y) ** 2)
+    return math.hypot(x - last_x, y - last_y)
 
 
 

@@ -1,8 +1,9 @@
 import tkinter as tk
 import data, main
+from data import OrbitalSpeed
 
 
-def toggle_trails():
+def toggle_trails() -> None:
     global show_trails
     show_trails = not show_trails
 
@@ -21,6 +22,8 @@ button.place(x=root.winfo_screenwidth()-115, y=0)
 show_trails = True
 
 for body in data.bodies:
+    if body.name == "Sun":
+        continue
     if body.name == "Moon":
         main.set_circular_velocity(body, data.Earth)
     elif body.name in data.jupiter_moons:
@@ -29,7 +32,7 @@ for body in data.bodies:
         main.set_circular_velocity(body, data.Sun)
 
 
-def update():
+def update() -> None:
     # Update all bodies positions
     for i in range(data.constants["time_step"]):
         for body in data.bodies:
