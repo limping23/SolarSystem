@@ -1,8 +1,7 @@
 import math
 import data
 from math import sqrt, cos, sin
-
-from data import CelestialBody, jupiter_moons
+from data import CelestialBody
 
 
 def set_circular_velocity(body, center):
@@ -18,7 +17,7 @@ def set_circular_velocity(body, center):
     body.Orbital_speed.x = center.Orbital_speed.x + v_mag * tx
     body.Orbital_speed.y = center.Orbital_speed.y + v_mag * ty
 
-# --- убрать суммарный импульс системы (чтобы barycenter был в покое) ---
+# Barycenter
 def remove_system_momentum(bodies):
     px = sum(body.mass * body.Orbital_speed.x for body in bodies)
     py = sum(body.mass * body.Orbital_speed.y for body in bodies)
@@ -30,9 +29,9 @@ def remove_system_momentum(bodies):
         body.Orbital_speed.y -= vy_cm
 
 def distance(p1: data.Point, p2: data.Point) -> float: #Distance between 2 points
-    return sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2)
+    return math.hypot(p1.x - p2.x, p1.y - p2.y)
 
-def law_ug(m1: float, m2: float, R: float, softening = 1e5) -> float: #Law of Universal Gravitation
+def law_ug(m1: float, m2: float, R: float, softening = 0) -> float: #Law of Universal Gravitation
     return data.constants["G"] * m1 * m2 / R**2 + softening
 
 def angle(position: data.Vector) -> float: #Angle of vector relative to x
@@ -54,16 +53,17 @@ def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> No
     for other_body in data.bodies:
         if other_body == body:
             continue
-        force = law_ug(body.mass, other_body.mass, distance(body.position, other_body.position))# The force with which a particular planet is acted upon by another planet
-        force_angle = angle(data.Vector(other_body.position.x, other_body.position.y, body.position))  # Angle of said force relative to x
+        force = law_ug(body.mass, other_body.mass, distance(body.position, other_body.position)) # The force with which a particular planet is acted upon by another planet
+        force_angle = angle(data.Vector(other_body.position.x, other_body.position.y, body.position)) # Angle of said force relative to x
         forces.append((force, force_angle))
-    Sum_forces = sum_forces(forces) #The force with which all planets are acted upon by another planet and its direction
-    acceleration_res = Sum_forces[0] / body.mass #Momental acceleration
-    acceleration = data.Acceleration(acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])) #True acceleration in the Oxy axis
+    Sum_forces = sum_forces(forces) # The force with which all planets are acted upon by another planet and its direction
+    acceleration_res = Sum_forces[0] / body.mass # Momental acceleration
+    acceleration = data.Acceleration(acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])) # True acceleration in the Oxy axis
     movement = body.Orbital_speed * dt + acceleration * dt**2 / 2
-    body.position += movement #Setting new pos for planet
-    body.Orbital_speed += acceleration * dt #Setting new speed for planet
+    body.position += movement # Setting new pos for planet
+    body.Orbital_speed += acceleration * dt # Setting new speed for planet
 
+    # Optimized trail creation
     body.update_counter += 1
     if body.update_counter % body.trail_update_interval == 0:
         screen_x = body.position.x * body.scaler * data.constants["scale"] + 735
@@ -73,8 +73,8 @@ def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> No
             if len(body.trail) > body.max_trail_length:
                 body.trail.pop(0)
 
+# Distance from last trail point to current
 def distance_to_last(trail, x, y):
-    """Вычисляет расстояние от последней точки в траектории до новой точки"""
     if not trail:
         return float('inf')
     last_x, last_y = trail[-1]
