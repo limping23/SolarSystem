@@ -5,9 +5,9 @@ from typing import Self
 constants = {
     'G': 6.674e-11,
     'scale': 5e-10,
-    'time_step': 200,
+    'time_step': 200, # Это менять для скорости — максимум примерно 250 хз потести с секундомером
     "sun_mass": 1.989e30,
-    "dt": 900
+    "dt": 1200
 }
 
 
@@ -21,6 +21,15 @@ class Point:
 
     def __sub__(self, other) -> Self:
         return Point(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, scalar) -> Self:
+        return Point(self.x * scalar, self.y * scalar)
+
+    def __rmul__(self, scalar) -> Self:
+        return Point(self.x * scalar, self.y * scalar)
+
+    def __truediv__(self, scalar) -> Self:
+        return Point(self.x / scalar, self.y / scalar)
 
 
 class Vector:
@@ -105,6 +114,9 @@ class CelestialBody:
     update_counter: int
     trail_update_interval: int
     min_trail_length: float
+    screen_x: float
+    screen_y: float
+    next_pos: Point
 
     @property
     def info(self) -> dict:
@@ -121,6 +133,8 @@ class CelestialBody:
             "min_trail_length": self.min_trail_length,
             "update_counter": self.update_counter,
             "trail_update_interval": self.trail_update_interval,
+            "screen_x": self.screen_x,
+            "screen_y": self.screen_y
         }
 
 
@@ -137,7 +151,10 @@ Sun = CelestialBody(
     max_trail_length=0,
     update_counter=0,
     trail_update_interval=1,
-    min_trail_length=0
+    min_trail_length=0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Mercury = CelestialBody(
@@ -153,7 +170,10 @@ Mercury = CelestialBody(
     max_trail_length=500,
     update_counter=0,
     trail_update_interval=3,
-    min_trail_length=2.0
+    min_trail_length=2.0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Venus = CelestialBody(
@@ -169,7 +189,10 @@ Venus = CelestialBody(
     max_trail_length=400,
     update_counter=0,
     trail_update_interval=3,
-    min_trail_length=2.0
+    min_trail_length=2.0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Earth = CelestialBody(
@@ -185,23 +208,29 @@ Earth = CelestialBody(
     max_trail_length=350,
     update_counter=0,
     trail_update_interval=4,
-    min_trail_length=2.5
+    min_trail_length=2.5,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Moon = CelestialBody(
     name='Moon',
-    mass=7.342e22,
-    radius=1.737e6,
+    mass=7.348e22,
+    radius=1.7371e6,
     position=Point(Earth.position.x, Earth.position.y + 3.844e8),
     Orbital_speed=OrbitalSpeed(0,0),
     color="#C2B280",
     screen_radius=3,
-    scaler=1.36,
+    scaler=1.2,
     trail=[],
     max_trail_length=0,
     update_counter=Earth.update_counter,
     trail_update_interval=Earth.trail_update_interval,
     min_trail_length=Earth.min_trail_length,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Mars = CelestialBody(
@@ -217,7 +246,10 @@ Mars = CelestialBody(
     max_trail_length=350,
     update_counter=0,
     trail_update_interval=5,
-    min_trail_length=3.0
+    min_trail_length=3.0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Jupiter = CelestialBody(
@@ -233,23 +265,29 @@ Jupiter = CelestialBody(
     max_trail_length=330,
     update_counter=0,
     trail_update_interval=7,
-    min_trail_length=4.0
+    min_trail_length=4.0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Io = CelestialBody(
     name='Io',
-    mass=8.93e22,
-    radius=1.821e6,
+    mass=8.9319e22,
+    radius=1.8213e6,
     position=Point(Jupiter.position.x, Jupiter.position.y + 4.217e8),
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#E5B73B",
     screen_radius=2,
-    scaler=0.46,
+    scaler=0.5,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Europa = CelestialBody(
@@ -260,12 +298,15 @@ Europa = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#D9C7A9",
     screen_radius=2,
-    scaler=0.45,
+    scaler=0.5,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Ganymede = CelestialBody(
@@ -276,12 +317,15 @@ Ganymede = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#92877D",
     screen_radius=2,
-    scaler=0.44,
+    scaler=0.5,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Callisto = CelestialBody(
@@ -292,12 +336,15 @@ Callisto = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#5E4B3C",
     screen_radius=2,
-    scaler=0.42,
+    scaler=0.5,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Saturn = CelestialBody(
@@ -313,7 +360,10 @@ Saturn = CelestialBody(
     max_trail_length=500,
     update_counter=0,
     trail_update_interval=9,
-    min_trail_length=5.0
+    min_trail_length=5.0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Uranus = CelestialBody(
@@ -329,7 +379,10 @@ Uranus = CelestialBody(
     max_trail_length=500,
     update_counter=0,
     trail_update_interval=10,
-    min_trail_length=5.0
+    min_trail_length=5.0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 Neptune = CelestialBody(
@@ -345,7 +398,10 @@ Neptune = CelestialBody(
     max_trail_length=600,
     update_counter=0,
     trail_update_interval=10,
-    min_trail_length=5.0
+    min_trail_length=5.0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
 )
 
 

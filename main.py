@@ -12,9 +12,9 @@ def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
         return
     v_mag = math.sqrt(data.constants["G"] * center.mass / r)
     # касательная единичная (CCW): (-dy/r, dx/r)
-    tx = -dy / r
+    tx = dy / r
     ty = dx / r
-    body.Orbital_speed.x = center.Orbital_speed.x + v_mag * tx
+    body.Orbital_speed.x = center.Orbital_speed.x * 0 + v_mag * tx
     body.Orbital_speed.y = center.Orbital_speed.y + v_mag * ty
 
 # Barycenter
@@ -32,7 +32,7 @@ def distance(p1: data.Point, p2: data.Point) -> float: #Distance between 2 point
     return math.hypot(p1.x - p2.x, p1.y - p2.y)
 
 def law_ug(m1: float, m2: float, R: float, softening: float = 0) -> float: #Law of Universal Gravitation
-    return data.constants["G"] * m1 * m2 / R**2 + softening
+    return data.constants["G"] * m1 * m2 / (R**2 + softening)
 
 def angle(position: data.Vector) -> float: #Angle of vector relative to x
     delta_x = position.x2 - position.x1
@@ -60,7 +60,7 @@ def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> No
     acceleration_res = Sum_forces[0] / body.mass # Momental acceleration
     acceleration = data.Acceleration(acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])) # True acceleration in the Oxy axis
     movement = body.Orbital_speed * dt + acceleration * dt**2 / 2
-    body.position += movement # Setting new pos for planet
+    body.next_pos = body.position + movement # Setting new pos for planet
     body.Orbital_speed += acceleration * dt # Setting new speed for planet
 
     # Optimized trail creation
@@ -79,6 +79,7 @@ def distance_to_last(trail: list[tuple], x: float, y: float) -> float:
         return float('inf')
     last_x, last_y = trail[-1]
     return math.hypot(x - last_x, y - last_y)
+
 
 
 
