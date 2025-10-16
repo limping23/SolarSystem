@@ -3,7 +3,6 @@ import data
 from math import sqrt, cos, sin
 from data import CelestialBody
 
-
 def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
     dx = body.position.x - center.position.x
     dy = body.position.y - center.position.y
@@ -66,8 +65,8 @@ def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> No
     # Optimized trail creation
     body.update_counter += 1
     if body.update_counter % body.trail_update_interval == 0:
-        screen_x = body.position.x * body.scaler * data.constants["scale"] + 735
-        screen_y = body.position.y * body.scaler * data.constants["scale"] + 478
+        screen_x = body.position.x * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 735
+        screen_y = body.position.y * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 478
         if len(body.trail) == 0 or distance_to_last(body.trail, screen_x, screen_y) > body.min_trail_length:
             body.trail.append((screen_x, screen_y))
             if len(body.trail) > body.max_trail_length:

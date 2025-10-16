@@ -5,9 +5,10 @@ from typing import Self
 constants = {
     'G': 6.674e-11,
     'scale': 5e-10,
-    'time_step': 200, # Это менять для скорости — максимум примерно 250 хз потести с секундомером
+    'time_step': 10, # Это менять для скорости — максимум примерно 250 хз потести с секундомером
     "sun_mass": 1.989e30,
-    "dt": 1200
+    "dt": 1200,
+    "scale_m": 1
 }
 
 
@@ -222,7 +223,7 @@ Moon = CelestialBody(
     Orbital_speed=OrbitalSpeed(0,0),
     color="#C2B280",
     screen_radius=3,
-    scaler=1.2,
+    scaler=Earth.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Earth.update_counter,
@@ -279,7 +280,7 @@ Io = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#E5B73B",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
@@ -298,7 +299,7 @@ Europa = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#D9C7A9",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
@@ -317,7 +318,7 @@ Ganymede = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#92877D",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
@@ -336,7 +337,7 @@ Callisto = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#5E4B3C",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
