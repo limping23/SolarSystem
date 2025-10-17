@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from typing import Self
+import random
 
 
 constants = {
     "user_scale": True,
     'G': 6.674e-11,
     'scale': 5e-10,
-    "real_scale": 1e-7,
+    "real_scale": 7e-8,
     'time_step': 10,
     "sun_mass": 1.989e30,
     "dt": 1200,
@@ -416,6 +417,25 @@ Neptune = CelestialBody(
     next_pos=Point(0, 0)
 )
 
+BlackHole = CelestialBody(
+    name="BlackHole",
+    mass=8.256e36,
+    radius=1.23e10,
+    position=Point(x=random.randint(random.randint(int(-5e13), int(-5e12)), random.randint(int(5e12), int(5e13))), y=random.randint(random.randint(int(-5e13), int(-5e12)), random.randint(int(5e12), int(5e13)))),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#000000",
+    screen_radius=20,
+    scaler=1,
+    trail=[],
+    max_trail_length=0,
+    update_counter=0,
+    trail_update_interval=1,
+    min_trail_length=0,
+    screen_x = 0,
+    screen_y = 0,
+    next_pos=Point(0, 0)
+
+)
 Kepler11 = CelestialBody(
     name='Kepler-11',
     mass=0.961 * constants['sun_mass'],
@@ -563,7 +583,8 @@ bodies = [
     Callisto,
     Saturn,
     Uranus,
-    Neptune
+    Neptune,
+    BlackHole
 ]
 
 kepler_bodies = [

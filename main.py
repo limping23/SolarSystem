@@ -49,10 +49,10 @@ def sum_forces(forces: list[tuple]) -> tuple: #Sum of all forces acting on some 
     force_res = sqrt(force_res_x**2 + force_res_y**2)
     return force_res, math.atan2(force_res_y, force_res_x)
 
-def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> None:
+def update_position(body: CelestialBody, blackhole: bool, dt: float = data.constants["dt"]) -> None:
     forces = []
     for other_body in data.bodies:
-        if other_body == body:
+        if other_body == body or body.position == other_body.position or other_body.name == "BlackHole" and not blackhole:
             continue
         force = law_ug(body.mass, other_body.mass, distance(body.position, other_body.position)) # The force with which a particular planet is acted upon by another planet
         force_angle = angle(data.Vector(other_body.position.x, other_body.position.y, body.position)) # Angle of said force relative to x
@@ -62,6 +62,9 @@ def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> No
     acceleration = data.Acceleration(acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])) # True acceleration in the Oxy axis
     movement = body.Orbital_speed * dt + acceleration * dt**2 / 2
     body.next_pos = body.position + movement # Setting new pos for planet
+    if blackhole and (data.BlackHole.position.x - data.BlackHole.radius >= body.position.x <= data.BlackHole.position.x + data.BlackHole.radius or data.BlackHole.position.y - data.BlackHole.radius >= body.position.y <= data.BlackHole.position.y + data.BlackHole.radius):
+        body.position = data.BlackHole.position
+        body.color = "black"
     body.Orbital_speed += acceleration * dt # Setting new speed for planet
 
     # Optimized trail creation

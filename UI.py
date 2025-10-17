@@ -19,6 +19,8 @@ time_past = 0
 show_text = True
 visible = True
 joker = False
+blackhole = False
+BHHighlight = True
 
 
 pygame.mixer.init()
@@ -89,6 +91,10 @@ class App:
         self.root_elements["text_button"] = tk.Button(self.root, text="Hide Text", command=self.hide_text)
         self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - 100, y=90)
 
+        self.root_elements["BHHighlight"] = tk.Button(self.root, text="Highlight Black Hole", command=self.BHHighlight)
+        if blackhole:
+            self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 160, y=120)
+
         self.root.bind("<Escape>", self.quit_program)
         self.root.bind("<space>", self.pause)
         self.root.bind("<Right>", self.scale_add)
@@ -110,17 +116,19 @@ class App:
             self.root.attributes("-fullscreen", True)
 
             font = tkFont.Font(family='Helvetica', size=30, weight='bold')
-            text = tk.Label(self.root, text="Выберите масштаб", font=font)
-            text.place(x=(self.root.winfo_screenwidth() - font.measure("Выберите масштаб")) / 2, y=400)
+            text = tk.Label(self.root, text="Выберите режим", font=font)
+            text.place(x=(self.root.winfo_screenwidth() - font.measure("Выберите режим")) / 2, y=400)
             btn1 = tk.Button(self.root, text="   Упрощенный   ", command=self.user_scale_t, bg="#eae6ca")
             btn2 = tk.Button(self.root, text="Действительный", command=self.user_scale_f, bg="#eae6ca")
             btn3 = tk.Button(self.root, text="    Kepler-11    ", command=self.kepler, bg="#eae6ca")
+            btn4 = tk.Button(self.root, text="Solar System with Black Hole", command=self.black_hole, bg="#eae6ca")
             btn1.place(x=(self.root.winfo_screenwidth() - 278) // 2.2, y=500)
             btn2.place(x=(self.root.winfo_screenwidth() - 278) // 1.5, y=500)
             btn3.place(x=(self.root.winfo_screenwidth() - 278) // 1.76, y=600)
+            btn4.place(x=(self.root.winfo_screenwidth() - 278) // 1.88, y=700)
 
     def update(self) -> None:
-        global time_past
+        global time_past, blackhole, BHHighlight
         if not kepler_check:
             if not self.updating or not self.root or not self.root.winfo_exists():
                 return
@@ -130,10 +138,12 @@ class App:
                 time_past += data.constants["time_step"] * data.constants["dt"]
                 for i in range(data.constants["time_step"]):
                     for body in data.bodies:
-                        if body.name == "Sun":
+                        if body.name == "Sun" and not blackhole or body.name == "BlackHole":
                             continue
-                        main.update_position(body)
+                        main.update_position(body, blackhole)
                     for body in data.bodies:
+                        if body.name == "BlackHole":
+                            continue
                         body.position = body.next_pos
 
             if show_stars:
@@ -149,6 +159,8 @@ class App:
 
             if data.constants["user_scale"]:
                 for body in data.bodies:
+                    if body.name == "BlackHole":
+                        continue
                     body.screen_x = body.position.x * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 735
                     body.screen_y = body.position.y * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 478
                     if body.name == "Moon":
@@ -195,19 +207,25 @@ class App:
                                                 fill="white")
             else:
                 for body in data.bodies:
+                    if body.name == "BlackHole" and not blackhole:
+                        continue
                     body.screen_x = body.position.x * data.constants["real_scale"] * data.constants["scale_m"] + 735
                     body.screen_y = body.position.y * data.constants["real_scale"] * data.constants["scale_m"] + 478
 
                     if body.name == "Moon" or body.name in data.jupiter_moons and not show_moons:
                         continue
 
+                    if body.name == "BlackHole" and BHHighlight:
+                        cl = "white"
+                    else:
+                        cl = ""
                     planet_id = self.canvas.create_oval(
                         body.screen_x - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
                         body.screen_y - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
                         body.screen_x + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
                         body.screen_y + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
                         fill=body.color,
-                        outline=""
+                        outline=cl
                     )
                     if body.name == "Saturn":
                         self.canvas.create_oval(body.position.x - 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
@@ -216,8 +234,8 @@ class App:
                                                 body.position.y + 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
                                                 outline="#ceb8b8", width=533e5 * data.constants["real_scale"] * data.constants["scale_m"])
                     self.bind_planet_tooltip(planet_id, body.name, body.mass, body.radius, math.hypot(body.Orbital_speed.x, body.Orbital_speed.y), body.position.x, body.position.y)
-
-            main.remove_system_momentum(data.bodies)
+            if not blackhole:
+                main.remove_system_momentum(data.bodies)
 
         else:
             if not self.updating or not self.root or not self.root.winfo_exists():
@@ -230,7 +248,7 @@ class App:
                     for body in data.kepler_bodies:
                         if body.name == "Kepler-11":
                             continue
-                        main.update_position(body)
+                        main.update_position(body, False)
                     for body in data.kepler_bodies:
                         body.position = body.next_pos
 
@@ -296,7 +314,9 @@ class App:
         show_trails = not show_trails
 
     def user_scale_t(self):
+        global blackhole
         data.constants["user_scale"] = True
+        blackhole = False
         return self.open_main_root()
 
     def user_scale_f(self):
@@ -316,7 +336,21 @@ class App:
         show_stars = False
         data.constants["time_step"] = 1
         data.constants["dt"] = 1
-        data.constants["real_scale"] = 1e-8
+        data.constants["real_scale"] = 5e-8
+        return self.open_main_root()
+
+    def black_hole(self):
+        global show_trails, show_moons, show_stars, blackhole, running
+        blackhole = True
+        data.constants["user_scale"] = False
+        show_trails = False
+        show_moons = False
+        show_stars = False
+        data.constants["time_step"] = 1
+        data.constants["dt"] = 1
+        data.constants["update_speed"] = 100
+        data.constants["real_scale"] = 5e-11
+        running = True
         return self.open_main_root()
 
     def hide_stars(self):
@@ -328,6 +362,11 @@ class App:
             joker = not joker
             threading.Thread(target=lambda: webbrowser.open("https://youtu.be/dQw4w9WgXcQ?si=EScuTA7EVvjQaglx"), daemon=True).start()
 
+
+    @staticmethod
+    def BHHighlight():
+        global BHHighlight
+        BHHighlight = not BHHighlight
 
     @staticmethod
     def hide_moons():
@@ -459,12 +498,14 @@ class App:
                 self.root_elements["moons_button"].place(x=self.root.winfo_screenwidth() - 115, y=60)
             if data.constants["user_scale"]:
                 self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - 100, y=90)
+            if blackhole:
+                self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 160, y=90)
         else:
             for element in self.root_elements.values():
                 element.place_forget()
 
 for body in data.bodies:
-    if body.name == "Sun":
+    if body.name == "Sun" or body.name == "BlackHole":
         continue
     if body.name == "Moon":
         main.set_circular_velocity(body, data.Earth)
