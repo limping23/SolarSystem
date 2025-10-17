@@ -10,7 +10,8 @@ constants = {
     'time_step': 10,
     "sun_mass": 1.989e30,
     "dt": 1200,
-    "scale_m": 1
+    "scale_m": 1,
+    "update_speed": 1
 }
 
 

@@ -19,6 +19,7 @@ show_text = True
 visible = True
 joker = False
 
+
 pygame.mixer.init()
 pygame.mixer.music.load('Hans_Zimmer_-_S.T.A.Y._Interstellar_Main_Theme_(SkySound.cc).mp3')
 pygame.mixer.music.play(-1)
@@ -98,7 +99,7 @@ class App:
         self.root.focus_force()
 
         self.updating = True
-        self.root.after(1, self.update)
+        self.root.after(data.constants["update_speed"], self.update)
 
     def create_pre_root(self):
         if not self.root:
@@ -213,9 +214,9 @@ class App:
 
         # print(data.Saturn.info)
         main.remove_system_momentum(data.bodies)
-
+        print(data.constants)
         if self.updating and self.root and self.root.winfo_exists():
-            self.root.after(1, self.update)
+            self.root.after(data.constants["update_speed"], self.update)
 
     def quit_program(self, event=None) -> None:
         self.remove_all_tooltips()
@@ -312,13 +313,31 @@ class App:
 
     @staticmethod
     def add_speed(event=None):
-        if data.constants["time_step"] <= 270:
+        if data.constants["update_speed"] >= 11:
+            data.constants["update_speed"] -= 10
+        elif data.constants["update_speed"] >= 2:
+            data.constants["update_speed"] -= 1
+        elif data.constants["dt"] <= 1191:
+            data.constants["dt"] += 10
+        elif data.constants["time_step"] <= 270:
             data.constants["time_step"] += 5
 
     @staticmethod
     def red_speed(event=None):
-        if data.constants["time_step"] >= 6:
-            data.constants["time_step"] -= 5
+        if data.constants["time_step"] >= 4:
+            data.constants["time_step"] -= 3
+        elif data.constants["time_step"] >= 2:
+            data.constants["time_step"] -= 1
+        else:
+            if data.constants["dt"] >= 11:
+                data.constants["dt"] -= 10
+            elif data.constants["dt"] >= 2:
+                data.constants["dt"] -= 1
+            else:
+                if data.constants["update_speed"] <= 90:
+                    data.constants["update_speed"] += 10
+                elif data.constants["update_speed"] < 100:
+                    data.constants["update_speed"] += 9
 
     def bind_planet_tooltip(self, planet_id, name, mass, radius, speed, x, y):
         def show_tooltip(event):
