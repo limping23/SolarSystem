@@ -2,6 +2,7 @@ import math
 import data
 from math import sqrt, cos, sin
 from data import CelestialBody
+import datetime
 
 
 def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
@@ -65,13 +66,22 @@ def update_position(body: CelestialBody, dt: float = data.constants["dt"]) -> No
 
     # Optimized trail creation
     body.update_counter += 1
-    if body.update_counter % body.trail_update_interval == 0:
-        screen_x = body.position.x * body.scaler * data.constants["scale"] + 735
-        screen_y = body.position.y * body.scaler * data.constants["scale"] + 478
+    if data.constants["user_scale"]:
+        if body.update_counter % body.trail_update_interval == 0:
+            screen_x = body.position.x * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 735
+            screen_y = body.position.y * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 478
+            if len(body.trail) == 0 or distance_to_last(body.trail, screen_x, screen_y) > body.min_trail_length:
+                body.trail.append((screen_x, screen_y))
+                if len(body.trail) > body.max_trail_length:
+                    body.trail.pop(0)
+    else:
+        screen_x = body.position.x * data.constants["real_scale"] * data.constants["scale_m"] + 735
+        screen_y = body.position.y * data.constants["real_scale"] * data.constants["scale_m"] + 478
         if len(body.trail) == 0 or distance_to_last(body.trail, screen_x, screen_y) > body.min_trail_length:
             body.trail.append((screen_x, screen_y))
             if len(body.trail) > body.max_trail_length:
                 body.trail.pop(0)
+
 
 # Distance from last trail point to current
 def distance_to_last(trail: list[tuple], x: float, y: float) -> float:
@@ -80,6 +90,15 @@ def distance_to_last(trail: list[tuple], x: float, y: float) -> float:
     last_x, last_y = trail[-1]
     return math.hypot(x - last_x, y - last_y)
 
+
+def format_ymwd(seconds: int) -> str:
+    start = datetime.datetime(1, 1, 1)
+    date = start + datetime.timedelta(seconds=seconds)
+    y, m, d = date.year - 1, date.month - 1, date.day
+    y = '0' + str(y) if y < 10 else str(y)
+    m = '0' + str(m) if m < 10 else str(m)
+    d = '0' + str(d) if d < 10 else str(d)
+    return f"{y} Y : {m} M : {d} D"
 
 
 

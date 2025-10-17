@@ -3,11 +3,14 @@ from typing import Self
 
 
 constants = {
+    "user_scale": True,
     'G': 6.674e-11,
     'scale': 5e-10,
-    'time_step': 200, # Это менять для скорости — максимум примерно 250 хз потести с секундомером
+    "real_scale": 1e-7,
+    'time_step': 10,
     "sun_mass": 1.989e30,
-    "dt": 1200
+    "dt": 1200,
+    "scale_m": 1
 }
 
 
@@ -137,6 +140,14 @@ class CelestialBody:
             "screen_y": self.screen_y
         }
 
+@dataclass
+class Text:
+    def __init__(self, text: str, font, bg_color: str, text_color: str):
+        self.text = text
+        self.font = font
+        self.bg_color = bg_color
+        self.text_color = text_color
+
 
 Sun = CelestialBody(
     name='Sun',
@@ -222,7 +233,7 @@ Moon = CelestialBody(
     Orbital_speed=OrbitalSpeed(0,0),
     color="#C2B280",
     screen_radius=3,
-    scaler=1.2,
+    scaler=Earth.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Earth.update_counter,
@@ -279,7 +290,7 @@ Io = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#E5B73B",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
@@ -298,7 +309,7 @@ Europa = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#D9C7A9",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
@@ -317,7 +328,7 @@ Ganymede = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#92877D",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
@@ -336,7 +347,7 @@ Callisto = CelestialBody(
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#5E4B3C",
     screen_radius=2,
-    scaler=0.5,
+    scaler=Jupiter.scaler,
     trail=[],
     max_trail_length=0,
     update_counter=Jupiter.update_counter,
@@ -428,3 +439,28 @@ jupiter_moons = [
     "Ganymede",
     "Callisto"
 ]
+
+
+Credits = Text(
+    text="Made by\n\tArtem Tsygankov\n\tMatvey Nemudrov",
+    font=...,
+    bg_color="black",
+    text_color="white",
+)
+
+Controls = Text(
+    text="<esc> - quit\t\n<space> - pause\t\n<left-arr> - zoom in\t\n"
+         "<right-arr> - zoom out\n<up-arr> - speed up"
+         "\t\n      <down-arr> - slow down"
+         "\n<E> - hide ui\t",
+    font=...,
+    bg_color="black",
+    text_color="white"
+)
+
+Time_text = Text(
+    text='',
+    font=...,
+    bg_color="black",
+    text_color="white",
+)
