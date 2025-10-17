@@ -3,6 +3,7 @@ import data
 from math import sqrt, cos, sin
 from data import CelestialBody
 import datetime
+import sys, os
 
 
 def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
@@ -12,10 +13,9 @@ def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
     if r == 0:
         return
     v_mag = math.sqrt(data.constants["G"] * center.mass / r)
-    # касательная единичная (CCW): (-dy/r, dx/r)
     tx = dy / r
     ty = dx / r
-    body.Orbital_speed.x = center.Orbital_speed.x * 0 + v_mag * tx
+    body.Orbital_speed.x = center.Orbital_speed.x + v_mag * tx
     body.Orbital_speed.y = center.Orbital_speed.y + v_mag * ty
 
 # Barycenter
@@ -101,6 +101,13 @@ def format_ymwd(seconds: int) -> str:
     return f"{y} Y : {m} M : {d} D"
 
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 

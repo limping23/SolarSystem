@@ -416,6 +416,138 @@ Neptune = CelestialBody(
     next_pos=Point(0, 0)
 )
 
+Kepler11 = CelestialBody(
+    name='Kepler-11',
+    mass=0.961 * constants['sun_mass'],
+    radius=7.65e8,
+    position=Point(0, 0),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#FFD700",
+    screen_radius=25,
+    scaler=1,
+    trail=[],
+    max_trail_length=1000,
+    update_counter=0,
+    trail_update_interval=1,
+    min_trail_length=0,
+    screen_x=0,
+    screen_y=0,
+    next_pos=Point(0, 0)
+)
+
+Kepler11b = CelestialBody(
+    name='Kepler-11b',
+    mass=1.9 * 5.972e24,
+    radius=1.147e7,
+    position=Point(1.36e10, 0.0),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#C4A484",
+    screen_radius=6,
+    scaler=1.2,
+    trail=[],
+    max_trail_length=1e4,
+    update_counter=0,
+    trail_update_interval=3,
+    min_trail_length=1.5,
+    screen_x=0,
+    screen_y=0,
+    next_pos=Point(0, 0)
+)
+
+Kepler11c = CelestialBody(
+    name='Kepler-11c',
+    mass=2.9 * 5.972e24,
+    radius=1.829e7,
+    position=Point(1.6e10, 0.0),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#8B7355",
+    screen_radius=8,
+    scaler=1.2,
+    trail=[],
+    max_trail_length=1e5,
+    update_counter=0,
+    trail_update_interval=3,
+    min_trail_length=1.8,
+    screen_x=0,
+    screen_y=0,
+    next_pos=Point(0, 0)
+)
+
+Kepler11d = CelestialBody(
+    name='Kepler-11d',
+    mass=7.3 * 5.972e24,
+    radius=1.988e7,
+    position=Point(2.32e10, 0.0),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#556B2F",
+    screen_radius=9,
+    scaler=1.2,
+    trail=[],
+    max_trail_length=1e5,
+    update_counter=0,
+    trail_update_interval=3,
+    min_trail_length=2.0,
+    screen_x=0,
+    screen_y=0,
+    next_pos=Point(0, 0)
+)
+
+Kepler11e = CelestialBody(
+    name='Kepler-11e',
+    mass=8.0 * 5.972e24,
+    radius=2.67e7,
+    position=Point(2.92e10, 0.0),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#4682B4",
+    screen_radius=11,
+    scaler=1.2,
+    trail=[],
+    max_trail_length=1e6,
+    update_counter=0,
+    trail_update_interval=3,
+    min_trail_length=2.2,
+    screen_x=0,
+    screen_y=0,
+    next_pos=Point(0, 0)
+)
+
+Kepler11f = CelestialBody(
+    name='Kepler-11f',
+    mass=2.0 * 5.972e24,
+    radius=1.663e7,
+    position=Point(3.74e10, 0.0),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#32CD32",
+    screen_radius=7,
+    scaler=1.2,
+    trail=[],
+    max_trail_length=1e6,
+    update_counter=0,
+    trail_update_interval=3,
+    min_trail_length=2.5,
+    screen_x=0,
+    screen_y=0,
+    next_pos=Point(0, 0)
+)
+
+Kepler11g = CelestialBody(
+    name='Kepler-11g',
+    mass=25.0 * 5.972e24,
+    radius=2.123e7,
+    position=Point(6.97e10, 0.0),
+    Orbital_speed=OrbitalSpeed(0, 0),
+    color="#8A2BE2",
+    screen_radius=10,
+    scaler=1.2,
+    trail=[],
+    max_trail_length=1e6,
+    update_counter=0,
+    trail_update_interval=3,
+    min_trail_length=3.0,
+    screen_x=0,
+    screen_y=0,
+    next_pos=Point(0, 0)
+)
 
 bodies = [
     Sun,
@@ -432,6 +564,16 @@ bodies = [
     Saturn,
     Uranus,
     Neptune
+]
+
+kepler_bodies = [
+    Kepler11,
+    Kepler11b,
+    Kepler11c,
+    Kepler11d,
+    Kepler11e,
+    Kepler11f,
+    Kepler11g
 ]
 
 jupiter_moons = [
