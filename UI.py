@@ -394,7 +394,7 @@ class App:
             for body in data.kepler_bodies:
                 body.trail.clear()
         else:
-            data.constants["scale_m"] += 0.01
+            data.constants["scale_m"] += 0.002
             for body in data.bodies:
                 body.trail.clear()
             for body in data.kepler_bodies:
