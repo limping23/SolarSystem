@@ -419,9 +419,9 @@ Neptune = CelestialBody(
 
 BlackHole = CelestialBody(
     name="BlackHole",
-    mass=8.256e36,
+    mass=8.256e34,
     radius=1.23e10,
-    position=Point(x=random.randint(random.randint(int(-5e13), int(-5e12)), random.randint(int(5e12), int(5e13))), y=random.randint(random.randint(int(-5e13), int(-5e12)), random.randint(int(5e12), int(5e13)))),
+    position=Point(x=random.randint(random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12))), y=random.randint(random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12)))),
     Orbital_speed=OrbitalSpeed(0, 0),
     color="#000000",
     screen_radius=20,

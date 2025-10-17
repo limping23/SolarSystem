@@ -89,8 +89,12 @@ class App:
             self.root_elements["moons_button"].place(x=self.root.winfo_screenwidth() - 115, y=60)
 
         self.root_elements["text_button"] = tk.Button(self.root, text="Hide Text", command=self.hide_text)
-        self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - 100, y=90)
+        if data.constants["user_scale"]:
+            self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - 100, y=90)
 
+        if not data.constants["user_scale"] and not kepler_check:
+            self.root_elements["IsBH"] = tk.Button(self.root, text="Spawn Black Hole", command=self.spawn)
+            self.root_elements["IsBH"].place(x=self.root.winfo_screenwidth() - 150, y=90)
         self.root_elements["BHHighlight"] = tk.Button(self.root, text="Highlight Black Hole", command=self.BHHighlight)
         if blackhole:
             self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 160, y=120)
@@ -308,6 +312,14 @@ class App:
         running = not running
         pause_times += 1
 
+    def spawn(self):
+        global blackhole
+        blackhole = not blackhole
+        if not blackhole:
+            tk.Button(self.root, text="Highlight Black Hole", command=self.BHHighlight).place_forget()
+        if blackhole:
+            self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 150, y=120)
+
     @staticmethod
     def toggle_trails() -> None:
         global show_trails
@@ -348,7 +360,7 @@ class App:
         show_stars = False
         data.constants["time_step"] = 1
         data.constants["dt"] = 1
-        data.constants["update_speed"] = 100
+        data.constants["update_speed"] = 1
         data.constants["real_scale"] = 5e-11
         running = True
         return self.open_main_root()
@@ -498,8 +510,10 @@ class App:
                 self.root_elements["moons_button"].place(x=self.root.winfo_screenwidth() - 115, y=60)
             if data.constants["user_scale"]:
                 self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - 100, y=90)
+            if not data.constants["user_scale"] and not kepler_check:
+                self.root_elements["IsBH"].place(x=self.root.winfo_screenwidth() - 150, y=90)
             if blackhole:
-                self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 160, y=90)
+                self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 160, y=120)
         else:
             for element in self.root_elements.values():
                 element.place_forget()
