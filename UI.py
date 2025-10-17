@@ -5,16 +5,18 @@ import main
 from random import randint
 import sys
 
-running = True
+running = True  # проверка паузы
 user_scale = False
 show_trails = True
 show_stars = True
 show_moons = True
-pause_times = 0
+pause_times = 0 # не реализовано
 time_past = 0
 show_text = True
 speed_m = 0
 visible = True
+ms = 0  # для отслеживания работы программы, реже создает invisible toogletips
+
 
 class App:
 
@@ -69,8 +71,8 @@ class App:
         self.canvas1 = tk.Canvas(self.root, bg='#000022', width=400, height=self.root.winfo_screenheight() - 750, highlightthickness=0)
         self.canvas1.place(x=self.root.winfo_screenwidth() - 430, y=30)
 
-        self.root_elements["trails_button"] = tk.Button(self.root, highlightcolor="yellow", text="Toggle Trails", command=self.toggle_trails)
-        self.root_elements["trails_button"].place(x=self.root.winfo_screenwidth() - 117, y=40)
+        self.root_elements["trails_button"] = tk.Button(self.root, highlightcolor="yellow", text="Hide Trails", command=self.toggle_trails)
+        self.root_elements["trails_button"].place(x=self.root.winfo_screenwidth() - 105, y=40)
 
         self.root_elements["stars_button"] = tk.Button(self.root, highlightcolor="yellow", text="Hide Stars", command=self.hide_stars)
         self.root_elements["stars_button"].place(x=self.root.winfo_screenwidth() - 103, y=70)
@@ -120,6 +122,8 @@ class App:
 
     def update(self) -> None:
         global time_past
+        global ms
+        ms += 1
         if not self.updating or not self.root or not self.root.winfo_exists():
             return
         if "time_text" in self.root_elements and visible:
@@ -187,8 +191,10 @@ class App:
                                         body.screen_x + (body.screen_radius + 10) * data.constants["scale_m"],
                                         body.screen_y + (body.screen_radius + 10) * data.constants["scale_m"],
                                         outline="#ceb8b8", width=6 * data.constants["scale_m"])
-
-            self.bind_planet_tooltip(planet_id, body.name, body.mass, body.radius, body.screen_x, body.screen_y)
+            if ms % 10 == 0:
+                self.bind_planet_tooltip(planet_id, body.name, body.mass, body.radius, body.screen_x, body.screen_y)
+            if ms % 500 == 0:
+                self.tooltip_text.destroy()
             if show_text:
                 self.canvas.create_text(body.screen_x,
                                         body.screen_y - body.screen_radius * data.constants["scale_m"] - 10,
@@ -198,7 +204,7 @@ class App:
         main.remove_system_momentum(data.bodies)
 
         if self.updating and self.root and self.root.winfo_exists():
-            self.root.after(1, self.update)
+            self.root.after(3, self.update)
 
     def quit_program(self, event=None) -> None:
         self.remove_all_tooltips()
@@ -282,21 +288,18 @@ class App:
 
     def bind_planet_tooltip(self, planet_id, name, mass, radius, x, y):
         def show_tooltip(event):
-            self.tooltip = tk.Toplevel(self.root)
-            self.tooltip.wm_overrideredirect(True)
-            self.tooltip.configure(bg="lightyellow")
-            self.tooltip_text = tk.Label(self.tooltip, background="black", fg="white", font=("Helvetica", 10))
-            self.tooltip_text.pack()
-            self.tooltip.withdraw()
-            self.tooltip_text.config(text=f"{name}\nMass: {mass} kg\nRadius: {radius//1000} km\nX: {round(x, 2)}, Y: {round(y, 2)}")
-            self.tooltip.wm_geometry(f"+{self.root.winfo_screenwidth()-160}+{self.root.winfo_screenheight()-700}")
-            self.tooltip.deiconify()
+            if visible:
+                self.tooltip = tk.Toplevel(self.root)
+                self.tooltip.wm_overrideredirect(True)
+                self.tooltip.configure(bg="black")
+                self.tooltip_text = tk.Label(self.tooltip, background="black", fg="white", font=("Helvetica", 10))
+                self.tooltip_text.pack()
+                self.tooltip.withdraw()
+                self.tooltip_text.config(text=f"{name}\nMass: {mass} kg\nRadius: {radius//1000} km\nX: {round(x, 2)}, Y: {round(y, 2)}")
+                self.tooltip.wm_geometry(f"+{self.root.winfo_screenwidth()-160}+{self.root.winfo_screenheight()-700}")
+                self.tooltip.deiconify()
 
-        def hide_tooltip(event):
-            self.tooltip.withdraw()
-
-        self.canvas.tag_bind(planet_id, "<Enter>", show_tooltip)
-        self.canvas.tag_bind(planet_id, "<Leave>", hide_tooltip)
+        self.canvas.tag_bind(planet_id, "<Motion>", show_tooltip)
 
         self.tooltips[planet_id] = self.tooltip
 
@@ -309,13 +312,13 @@ class App:
     def hide_ui(self, event=None):
         global visible
         visible = not visible
-
+        self.remove_all_tooltips()
         if visible:
             self.root_elements["credits"].place(x=self.root.winfo_screenwidth() - 210,
                                               y=self.root.winfo_screenheight() - 60)
-            self.root_elements["controls"].place(x=-15, y=self.root.winfo_screenheight() - 120)
+            self.root_elements["controls"].place(x=-15, y=self.root.winfo_screenheight() - 140)
             self.root_elements["time_text"].place(x=10, y=10)
-            self.root_elements["trails_button"].place(x=self.root.winfo_screenwidth() - 117, y=40)
+            self.root_elements["trails_button"].place(x=self.root.winfo_screenwidth() - 105, y=40)
             self.root_elements["stars_button"].place(x=self.root.winfo_screenwidth() - 103, y=70)
             self.root_elements["moons_button"].place(x=self.root.winfo_screenwidth() - 115, y=100)
             self.root_elements["reset_button"].place(x=self.root.winfo_screenwidth() - 78, y=130)
