@@ -410,7 +410,6 @@ class App:
                     data.constants["update_speed"] += 10
                 elif data.constants["update_speed"] < 100:
                     data.constants["update_speed"] += 9
-        print(data.constants)
 
     def bind_planet_tooltip(self, planet_id, name, mass, radius, speed, x, y):
         def show_tooltip(event):
