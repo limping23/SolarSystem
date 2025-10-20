@@ -6,11 +6,7 @@ import datetime
 import os
 
 
-def is_between(
-        p1: data.Point,
-        p2: data.Point,
-        p3: data.Point,
-        eps=1e-9) -> bool:
+def is_between(p1: data.Point, p2: data.Point, p3: data.Point, eps=1e-9) -> bool:
     x1 = p1.x
     y1 = p1.y
     x2 = p2.x
@@ -37,6 +33,7 @@ def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
     body.Orbital_speed.x = center.Orbital_speed.x + v_mag * tx
     body.Orbital_speed.y = center.Orbital_speed.y + v_mag * ty
 
+
 # Barycenter
 
 
@@ -55,7 +52,9 @@ def distance(p1: data.Point, p2: data.Point) -> float:  # Distance between 2 poi
     return math.hypot(p1.x - p2.x, p1.y - p2.y)
 
 
-def law_ug(m1: float, m2: float, r: float, softening: float = 0) -> float:  # Law of Universal Gravitation
+def law_ug(
+    m1: float, m2: float, r: float, softening: float = 0
+) -> float:  # Law of Universal Gravitation
     return data.constants["G"] * m1 * m2 / (r**2 + softening)
 
 
@@ -77,49 +76,47 @@ def sum_forces(forces: list[tuple]) -> tuple:
 
 
 def update_position(
-        body: CelestialBody,
-        blackhole: bool,
-        dt: float = data.constants["dt"]) -> None:
+    body: CelestialBody, blackhole: bool, dt: float = data.constants["dt"]
+) -> None:
     forces = []
     for other_body in data.bodies:
-        if other_body == body or body.position == other_body.position or other_body.name == "BlackHole" and not blackhole:
+        if (
+            other_body == body
+            or body.position == other_body.position
+            or other_body.name == "BlackHole"
+            and not blackhole
+        ):
             continue
         if blackhole:
             force = law_ug(
                 body.mass,
                 other_body.mass,
-                distance(
-                    body.position,
-                    other_body.position),
-                1e5)
+                distance(body.position, other_body.position),
+                1e5,
+            )
         else:
             # The force with which a particular planet is acted upon by another
             # planet
             force = law_ug(
-                body.mass, other_body.mass, distance(
-                    body.position, other_body.position))
+                body.mass, other_body.mass, distance(body.position, other_body.position)
+            )
         force_angle = angle(
-            data.Vector(
-                other_body.position.x,
-                other_body.position.y,
-                body.position))  # Angle of said force relative to x
+            data.Vector(other_body.position.x, other_body.position.y, body.position)
+        )  # Angle of said force relative to x
         forces.append((force, force_angle))
     # The force with which all planets are acted upon by another planet and
     # its direction
     Sum_forces = sum_forces(forces)
     acceleration_res = Sum_forces[0] / body.mass  # Moment acceleration
-    acceleration = data.Point(acceleration_res *
-                              cos(Sum_forces[1]), acceleration_res *
-                              sin(Sum_forces[1]))  # True acceleration in the Oxy axis
+    acceleration = data.Point(
+        acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])
+    )  # True acceleration in the Oxy axis
     movement = body.Orbital_speed * dt + acceleration * dt**2 / 2
     body.next_pos = body.position + movement  # Setting new pos for planet
     if blackhole and (
-        distance(
-            body.position,
-            data.BlackHole.position) < data.BlackHole.radius or is_between(
-            body.position,
-            body.next_pos,
-            data.BlackHole.position)):
+        distance(body.position, data.BlackHole.position) < data.BlackHole.radius
+        or is_between(body.position, body.next_pos, data.BlackHole.position)
+    ):
         body.color = "black"
         body.position = data.BlackHole.position
     body.Orbital_speed += acceleration * dt  # Setting new speed for planet
@@ -128,31 +125,48 @@ def update_position(
     body.update_counter += 1
     if data.constants["user_scale"]:
         if body.update_counter % body.trail_update_interval == 0:
-            screen_x = body.position.x * body.scaler * \
-                data.constants["scale_m"] * data.constants["scale"] + data.constants["root_info"][0] / 2 + data.constants["move_mx"]
-            screen_y = body.position.y * body.scaler * \
-                data.constants["scale_m"] * data.constants["scale"] + data.constants["root_info"][1] / 2 + data.constants["move_my"]
+            screen_x = (
+                body.position.x
+                * body.scaler
+                * data.constants["scale_m"]
+                * data.constants["scale"]
+                + data.constants["root_info"][0] / 2
+                + data.constants["move_mx"]
+            )
+            screen_y = (
+                body.position.y
+                * body.scaler
+                * data.constants["scale_m"]
+                * data.constants["scale"]
+                + data.constants["root_info"][1] / 2
+                + data.constants["move_my"]
+            )
             if data.Io.screen_radius == 6:
                 screen_x = body.screen_x
                 screen_y = body.screen_y
-            if len(
-                    body.trail) == 0 or distance_to_last(
-                    body.trail,
-                    screen_x,
-                    screen_y) > body.min_trail_length:
+            if (
+                len(body.trail) == 0
+                or distance_to_last(body.trail, screen_x, screen_y)
+                > body.min_trail_length
+            ):
                 body.trail.append((screen_x, screen_y))
                 if len(body.trail) > body.max_trail_length:
                     body.trail.pop(0)
     else:
-        screen_x = body.position.x * \
-            data.constants["real_scale"] * data.constants["scale_m"] + data.constants["root_info"][0] / 2 + data.constants["move_mx"]
-        screen_y = body.position.y * \
-            data.constants["real_scale"] * data.constants["scale_m"] + data.constants["root_info"][1] / 2 + data.constants["move_my"]
-        if len(
-                body.trail) == 0 or distance_to_last(
-                body.trail,
-                screen_x,
-                screen_y) > body.min_trail_length:
+        screen_x = (
+            body.position.x * data.constants["real_scale"] * data.constants["scale_m"]
+            + data.constants["root_info"][0] / 2
+            + data.constants["move_mx"]
+        )
+        screen_y = (
+            body.position.y * data.constants["real_scale"] * data.constants["scale_m"]
+            + data.constants["root_info"][1] / 2
+            + data.constants["move_my"]
+        )
+        if (
+            len(body.trail) == 0
+            or distance_to_last(body.trail, screen_x, screen_y) > body.min_trail_length
+        ):
             body.trail.append((screen_x, screen_y))
             if len(body.trail) > body.max_trail_length:
                 body.trail.pop(0)
@@ -161,7 +175,7 @@ def update_position(
 # Distance from last trail point to current
 def distance_to_last(trail: list[tuple], x: float, y: float) -> float:
     if not trail:
-        return float('inf')
+        return float("inf")
     last_x, last_y = trail[-1]
     return math.hypot(x - last_x, y - last_y)
 
@@ -170,9 +184,9 @@ def format_ymwd(seconds: int) -> str:
     start = datetime.datetime(1, 1, 1)
     date = start + datetime.timedelta(seconds=seconds)
     y, m, d = date.year - 1, date.month - 1, date.day
-    y = '0' + str(y) if y < 10 else str(y)
-    m = '0' + str(m) if m < 10 else str(m)
-    d = '0' + str(d) if d < 10 else str(d)
+    y = "0" + str(y) if y < 10 else str(y)
+    m = "0" + str(m) if m < 10 else str(m)
+    d = "0" + str(d) if d < 10 else str(d)
     return f"{y} Y : {m} M : {d} D"
 
 
