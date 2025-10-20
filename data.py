@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Self
 import random
-import tkinter as tk
 
 
 constants = {
@@ -16,7 +15,7 @@ constants = {
     "update_speed": 1,
     "move_mx": 0,
     "move_my": 0,
-    "root_info": (0,0)
+    "root_info": (0, 0)
 }
 planet_multipliers = {
     "Меркурий": 1.0,
@@ -41,13 +40,13 @@ class Point:
     def __sub__(self, other) -> Self:
         return Point(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, scalar) -> Self:
+    def __mul__(self, scalar: float) -> Self:
         return Point(self.x * scalar, self.y * scalar)
 
-    def __rmul__(self, scalar) -> Self:
+    def __rmul__(self, scalar: float) -> Self:
         return self * scalar
 
-    def __truediv__(self, scalar) -> Self:
+    def __truediv__(self, scalar: float) -> Self:
         return Point(self.x / scalar, self.y / scalar)
 
 
@@ -59,10 +58,28 @@ class Vector:
         self.y1 = origin.y
 
     def __add__(self, other) -> Self:
-        return Vector(self.x2 + other.x2 - other.x1, self.y2 + other.y2 - other.y1, Point(self.x1, self.y1))
+        return Vector(
+            self.x2 +
+            other.x2 -
+            other.x1,
+            self.y2 +
+            other.y2 -
+            other.y1,
+            Point(
+                self.x1,
+                self.y1))
 
     def __sub__(self, other) -> Self:
-        return Vector(self.x2 - other.x2 + other.x1, self.y2 - other.y2 + other.y1, Point(self.x1, self.y1))
+        return Vector(
+            self.x2 -
+            other.x2 +
+            other.x1,
+            self.y2 -
+            other.y2 +
+            other.y1,
+            Point(
+                self.x1,
+                self.y1))
 
     def __mul__(self, scalar: float) -> Self:
         return Vector(self.x1 + scalar * (self.x2 - self.x1), self.y1 +
@@ -114,9 +131,15 @@ class CelestialBody:
             "screen_y": self.screen_y
         }
 
+
 @dataclass
 class Text:
-    def __init__(self, text: str, font, bg_color: str, text_color: str):
+    def __init__(
+            self,
+            text: str,
+            font,
+            bg_color: str,
+            text_color: str) -> None:
         self.text = text
         self.font = font
         self.bg_color = bg_color
@@ -137,8 +160,8 @@ Sun = CelestialBody(
     update_counter=0,
     trail_update_interval=1,
     min_trail_length=0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -156,8 +179,8 @@ Mercury = CelestialBody(
     update_counter=0,
     trail_update_interval=3,
     min_trail_length=2.0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -175,8 +198,8 @@ Venus = CelestialBody(
     update_counter=0,
     trail_update_interval=3,
     min_trail_length=2.0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -194,8 +217,8 @@ Earth = CelestialBody(
     update_counter=0,
     trail_update_interval=4,
     min_trail_length=2.5,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -204,7 +227,7 @@ Moon = CelestialBody(
     mass=7.348e22,
     radius=1.7371e6,
     position=Point(Earth.position.x, Earth.position.y + 3.844e8),
-    Orbital_speed=Point(0,0),
+    Orbital_speed=Point(0, 0),
     color="#C2B280",
     screen_radius=3,
     scaler=Earth.scaler,
@@ -213,8 +236,8 @@ Moon = CelestialBody(
     update_counter=Earth.update_counter,
     trail_update_interval=Earth.trail_update_interval,
     min_trail_length=Earth.min_trail_length,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -232,8 +255,8 @@ Mars = CelestialBody(
     update_counter=0,
     trail_update_interval=5,
     min_trail_length=3.0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -251,8 +274,8 @@ Jupiter = CelestialBody(
     update_counter=0,
     trail_update_interval=7,
     min_trail_length=4.0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -270,8 +293,8 @@ Io = CelestialBody(
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -289,8 +312,8 @@ Europa = CelestialBody(
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -308,8 +331,8 @@ Ganymede = CelestialBody(
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -327,8 +350,8 @@ Callisto = CelestialBody(
     update_counter=Jupiter.update_counter,
     trail_update_interval=Jupiter.trail_update_interval,
     min_trail_length=Jupiter.min_trail_length,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -346,8 +369,8 @@ Saturn = CelestialBody(
     update_counter=0,
     trail_update_interval=9,
     min_trail_length=5.0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -365,8 +388,8 @@ Uranus = CelestialBody(
     update_counter=0,
     trail_update_interval=10,
     min_trail_length=5.0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
@@ -384,30 +407,36 @@ Neptune = CelestialBody(
     update_counter=0,
     trail_update_interval=10,
     min_trail_length=5.0,
-    screen_x = 0,
-    screen_y = 0,
+    screen_x=0,
+    screen_y=0,
     next_pos=Point(0, 0)
 )
 
-BlackHole = CelestialBody(
-    name="BlackHole",
-    mass=8.256e34,
-    radius=1.23e10,
-    position=Point(x=random.randint(random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12))), y=random.randint(random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12)))),
-    Orbital_speed=Point(0, 0),
-    color="#000000",
-    screen_radius=20,
-    scaler=1,
-    trail=[],
-    max_trail_length=0,
-    update_counter=0,
-    trail_update_interval=1,
-    min_trail_length=0,
-    screen_x = 0,
-    screen_y = 0,
-    next_pos=Point(0, 0)
-
-)
+BlackHole = CelestialBody(name="BlackHole",
+                          mass=8.256e34,
+                          radius=1.23e10,
+                          position=Point(x=random.randint(random.randint(int(-5e12),
+                                                                         int(-5e10)),
+                                                          random.randint(int(5e10),
+                                                                         int(5e12))),
+                                         y=random.randint(random.randint(int(-5e12),
+                                                                         int(-5e10)),
+                                                          random.randint(int(5e10),
+                                                                         int(5e12)))),
+                          Orbital_speed=Point(0,
+                                              0),
+                          color="#000000",
+                          screen_radius=20,
+                          scaler=1,
+                          trail=[],
+                          max_trail_length=0,
+                          update_counter=0,
+                          trail_update_interval=1,
+                          min_trail_length=0,
+                          screen_x=0,
+                          screen_y=0,
+                          next_pos=Point(0,
+                                         0))
 Kepler11 = CelestialBody(
     name='Kepler-11',
     mass=0.961 * constants['sun_mass'],
@@ -569,6 +598,19 @@ kepler_bodies = [
     Kepler11g
 ]
 
+SEM = [
+    Sun,
+    Earth,
+    Moon
+]
+
+JM = [
+    Jupiter,
+    Io,
+    Europa,
+    Ganymede,
+    Callisto
+]
 jupiter_moons = [
     "Io",
     "Europa",
@@ -586,8 +628,8 @@ Credits = Text(
 
 Controls = Text(
     text="<esc> - quit\t\n<space> - pause\t\n<left-arr> - zoom in\t\n"
-         "<right-arr> - zoom out\n\t<up-arr> - speed up"
-         "\t\n      <down-arr> - slow down"
+         "<right-arr> - zoom out\n<up-arr> - speed up"
+         "\t\n    <down-arr> - slow down"
          "\n<E> - hide ui\t\n<WASD> - move\t",
     font=...,
     bg_color="black",
