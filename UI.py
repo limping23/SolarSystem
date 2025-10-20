@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import data
 import main
 from random import randint
@@ -21,16 +22,18 @@ visible = True
 joker = False
 blackhole = False
 BHHighlight = True
-
+start_bh = True
 
 pygame.mixer.init()
-pygame.mixer.music.load(main.resource_path('Hans_Zimmer_-_S.T.A.Y._Interstellar_Main_Theme_(SkySound.cc).mp3'))
+pygame.mixer.music.load(main.resource_path('files/Hans_Zimmer_-_S.T.A.Y._Interstellar_Main_Theme_(SkySound.cc).mp3'))
 pygame.mixer.music.play(-1)
 
 
 class App:
 
     def __init__(self):
+        self.value_label = None
+        self.planet_combobox = None
         self.tooltip = None
         self.tooltip_text = None
         self.scale = None
@@ -44,6 +47,8 @@ class App:
         self.planet_ids = []
         self.tooltips = {}
         self.root_elements = {}
+        self.planet_multipliers = {}
+        self.current_planet = None
 
     def open_main_root(self):
         if self.root:
@@ -51,7 +56,9 @@ class App:
         self.create_main_root()
 
     def create_main_root(self):
+        global start_bh
         self.root = tk.Tk()
+        data.constants["root_info"] = (self.root.winfo_screenwidth(), self.root.winfo_screenheight())
         self.root.title("Solar System")
         self.root.attributes("-fullscreen", 1)
         self.root.configure(bg="#000000")
@@ -60,15 +67,24 @@ class App:
 
         data.Credits.font = tkFont.Font(family='Helvetica', size=12, weight='bold')
         self.root_elements["credits"] = tk.Label(self.root, text=data.Credits.text, font=data.Credits.font, bg=data.Credits.bg_color, fg=data.Credits.text_color)
-        self.root_elements["credits"].place(x=self.root.winfo_screenwidth()-180, y=self.root.winfo_screenheight()-100)
+
 
         data.Controls.font = tkFont.Font(family='Helvetica', size=12, weight='bold')
         self.root_elements["controls"] = tk.Label(self.root, text=data.Controls.text, font=data.Controls.font, bg=data.Controls.bg_color, fg=data.Controls.text_color)
-        self.root_elements["controls"].place(x=-15, y=self.root.winfo_screenheight() - 140)
+
 
         data.Time_text.font = tkFont.Font(family='Magneto', size=48, weight='bold')
         data.Time_text.text = f"{main.format_ymwd(time_past)}"
         self.root_elements["time_text"] = tk.Label(self.root, text=data.Time_text.text, font=data.Time_text.font, bg=data.Time_text.bg_color, fg=data.Time_text.text_color)
+
+        self.root.update_idletasks()
+
+        self.root_elements["credits"].place(
+            x=self.root.winfo_screenwidth() - self.root_elements["credits"].winfo_reqwidth(),
+            y=self.root.winfo_screenheight() - self.root_elements["credits"].winfo_reqheight() * 2)
+        self.root_elements["controls"].place(
+            x=0,
+            y=self.root.winfo_screenheight() - self.root_elements["controls"].winfo_reqheight() * 1.5)
         self.root_elements["time_text"].place(x=(self.root.winfo_screenwidth() - data.Time_text.font.measure(data.Time_text.text)) / 2, y=self.root.winfo_screenheight()-170)
 
         for i in range(60):
@@ -78,26 +94,60 @@ class App:
         self.paint_stars()
         self.canvas.pack()
 
-        self.root_elements["trails_button"] = tk.Button(self.root, text="Toggle Trails", command=self.toggle_trails)
-        self.root_elements["trails_button"].place(x=self.root.winfo_screenwidth() - 117, y=0)
+        self.root.update_idletasks()
 
+        self.root_elements["trails_button"] = tk.Button(self.root, text="Hide Trails", command=self.toggle_trails)
         self.root_elements["stars_button"] = tk.Button(self.root, text="Hide Stars", command=self.hide_stars)
-        self.root_elements["stars_button"].place(x=self.root.winfo_screenwidth() - 103, y=30)
-
         self.root_elements["moons_button"] = tk.Button(self.root, text="Hide Moons", command=self.hide_moons)
-        if not kepler_check:
-            self.root_elements["moons_button"].place(x=self.root.winfo_screenwidth() - 115, y=60)
-
-        self.root_elements["text_button"] = tk.Button(self.root, text="Hide Text", command=self.hide_text)
-        if data.constants["user_scale"]:
-            self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - 100, y=90)
-
-        if not data.constants["user_scale"] and not kepler_check:
-            self.root_elements["IsBH"] = tk.Button(self.root, text="Spawn Black Hole", command=self.spawn)
-            self.root_elements["IsBH"].place(x=self.root.winfo_screenwidth() - 150, y=90)
+        self.root_elements["IsBH"] = tk.Button(self.root, text="Spawn Black Hole", command=self.spawn)
         self.root_elements["BHHighlight"] = tk.Button(self.root, text="Highlight Black Hole", command=self.BHHighlight)
+        self.root_elements["text_button"] = tk.Button(self.root, text="Hide Text", command=self.hide_text)
+        if not blackhole and not kepler_check:
+                start_bh = False
+                for body in data.bodies:
+                    self.planet_multipliers[body.name] = 1.0
+                self.multiplier_var = tk.DoubleVar()
+                self.planet_var = tk.StringVar()
+                planet_names = [body.name for body in data.bodies if body.name != "BlackHole"]
+                self.root_elements["planet_combobox"] = ttk.Combobox(self.root, textvariable=self.planet_var, values=planet_names, state="readonly")
+                self.root_elements["planet_combobox"].set("Change planet mass")
+                self.root_elements["planet_combobox"].bind('<<ComboboxSelected>>', self.on_planet_select)
+
+        self.multiplier_var = tk.DoubleVar(value=1.0)
+        self.root_elements["planet_scale"] = tk.Scale(self.root,
+                                                      from_=0.1,
+                                                      to=10.0,
+                                                      resolution=0.1,
+                                                      orient=tk.HORIZONTAL,
+                                                      variable=self.multiplier_var,
+                                                      command=self.on_multiplier_change,
+                                                      length=200,
+                                                      showvalue=True,
+                                                      )
+        self.root_elements["planet_scale_text"] = tk.Label(self.root, text="Mass Multiplier: 1.0", fg="white",
+                                                           bg="#000000")
+
+
+        self.root_elements["trails_button"].place(x=self.root.winfo_screenwidth() - self.root_elements["trails_button"].winfo_reqwidth(), y=0)
+        self.root_elements["stars_button"].place(x=self.root.winfo_screenwidth() - self.root_elements["stars_button"].winfo_reqwidth(), y=30)
+        if not kepler_check:
+            self.root_elements["moons_button"].place(x=self.root.winfo_screenwidth() - self.root_elements["moons_button"].winfo_reqwidth(), y=60)
+        if data.constants["user_scale"]:
+            self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - self.root_elements["text_button"].winfo_reqwidth(), y=90)
+        if not data.constants["user_scale"] and not kepler_check:
+            if blackhole:
+                self.root_elements["IsBH"].place(x=self.root.winfo_screenwidth() - self.root_elements["IsBH"].winfo_reqwidth(), y=90)
+            else:
+                self.root_elements["IsBH"].place(
+                    x=self.root.winfo_screenwidth() - self.root_elements["IsBH"].winfo_reqwidth(), y=120)
         if blackhole:
-            self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 160, y=120)
+            self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - self.root_elements["BHHighlight"].winfo_reqwidth(), y=120)
+        if not kepler_check and not blackhole:
+            if data.constants["user_scale"]:
+                self.root_elements["planet_combobox"].place(x=self.root.winfo_screenwidth() - self.root_elements["planet_combobox"].winfo_reqwidth(), y=120)
+            else:
+                self.root_elements["planet_combobox"].place(x=self.root.winfo_screenwidth() - self.root_elements["planet_combobox"].winfo_reqwidth(), y=90)
+
 
         self.root.bind("<Escape>", self.quit_program)
         self.root.bind("<space>", self.pause)
@@ -107,6 +157,14 @@ class App:
         self.root.bind("<Down>", self.red_speed)
         self.root.bind("<E>", self.hide_ui)
         self.root.bind("<e>", self.hide_ui)
+        self.root.bind("<A>", self.add_move)
+        self.root.bind("<a>", self.add_move)
+        self.root.bind("<d>", self.red_move)
+        self.root.bind("<D>", self.red_move)
+        self.root.bind("<W>", self.add_move_y)
+        self.root.bind("<w>", self.add_move_y)
+        self.root.bind("<s>", self.red_move_y)
+        self.root.bind("<S>", self.red_move_y)
 
         self.root.focus_force()
 
@@ -130,6 +188,7 @@ class App:
             btn2.place(x=(self.root.winfo_screenwidth() - 278) // 1.5, y=500)
             btn3.place(x=(self.root.winfo_screenwidth() - 278) // 1.76, y=600)
             btn4.place(x=(self.root.winfo_screenwidth() - 278) // 1.88, y=700)
+            self.root.bind("<Escape>", self.quit_program)
 
     def update(self) -> None:
         global time_past, blackhole, BHHighlight
@@ -149,7 +208,7 @@ class App:
                         if body.name == "BlackHole":
                             continue
                         body.position = body.next_pos
-
+            self.apply_all_multipliers()
             if show_stars:
                 for item in self.canvas.find_all():
                     if item not in self.star_ids:
@@ -189,24 +248,24 @@ class App:
                         continue
 
                     planet_id = self.canvas.create_oval(
-                        body.screen_x - body.screen_radius * data.constants["scale_m"],
-                        body.screen_y - body.screen_radius * data.constants["scale_m"],
-                        body.screen_x + body.screen_radius * data.constants["scale_m"],
-                        body.screen_y + body.screen_radius * data.constants["scale_m"],
+                        body.screen_x + data.constants["move_mx"] - body.screen_radius * data.constants["scale_m"],
+                        body.screen_y + data.constants["move_my"] - body.screen_radius * data.constants["scale_m"],
+                        body.screen_x + data.constants["move_mx"] + body.screen_radius * data.constants["scale_m"],
+                        body.screen_y + data.constants["move_my"] + body.screen_radius * data.constants["scale_m"],
                         fill=body.color,
                         outline=""
                     )
                     if body.name == "Saturn":
-                        self.canvas.create_oval(body.screen_x - (body.screen_radius + 10) * data.constants["scale_m"],
-                                                body.screen_y - (body.screen_radius + 10) * data.constants["scale_m"],
-                                                body.screen_x + (body.screen_radius + 10) * data.constants["scale_m"],
-                                                body.screen_y + (body.screen_radius + 10) * data.constants["scale_m"],
+                        self.canvas.create_oval(body.screen_x + data.constants["move_mx"] - (body.screen_radius + 10) * data.constants["scale_m"],
+                                                body.screen_y + data.constants["move_my"] - (body.screen_radius + 10) * data.constants["scale_m"],
+                                                body.screen_x + data.constants["move_mx"] + (body.screen_radius + 10) * data.constants["scale_m"],
+                                                body.screen_y + data.constants["move_my"] + (body.screen_radius + 10) * data.constants["scale_m"],
                                                 outline="#ceb8b8", width=6 * data.constants["scale_m"])
 
                     self.bind_planet_tooltip(planet_id, body.name, body.mass, body.radius, math.hypot(body.Orbital_speed.x, body.Orbital_speed.y), body.screen_x, body.screen_y)
                     if show_text:
-                        self.canvas.create_text(body.screen_x,
-                                                body.screen_y - body.screen_radius * data.constants["scale_m"] - 10,
+                        self.canvas.create_text(body.screen_x + data.constants["move_mx"],
+                                                body.screen_y + data.constants["move_my"] - body.screen_radius * data.constants["scale_m"] - 10,
                                                 text=body.name,
                                                 fill="white")
             else:
@@ -224,18 +283,18 @@ class App:
                     else:
                         cl = ""
                     planet_id = self.canvas.create_oval(
-                        body.screen_x - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
-                        body.screen_y - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
-                        body.screen_x + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
-                        body.screen_y + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                        body.screen_x + data.constants["move_mx"] - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                        body.screen_y + data.constants["move_my"] - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                        body.screen_x + data.constants["move_mx"] + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                        body.screen_y + data.constants["move_my"] + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
                         fill=body.color,
                         outline=cl
                     )
                     if body.name == "Saturn":
-                        self.canvas.create_oval(body.position.x - 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
-                                                body.position.y - 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
-                                                body.position.x + 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
-                                                body.position.y + 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
+                        self.canvas.create_oval(body.position.x + data.constants["move_mx"] - 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
+                                                body.position.y + data.constants["move_my"] - 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
+                                                body.position.x + data.constants["move_mx"] + 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
+                                                body.position.y + data.constants["move_my"] + 146e5 * data.constants["real_scale"] * data.constants["scale_m"],
                                                 outline="#ceb8b8", width=533e5 * data.constants["real_scale"] * data.constants["scale_m"])
                     self.bind_planet_tooltip(planet_id, body.name, body.mass, body.radius, math.hypot(body.Orbital_speed.x, body.Orbital_speed.y), body.position.x, body.position.y)
             if not blackhole:
@@ -272,10 +331,10 @@ class App:
                 body.screen_y = body.position.y * data.constants["real_scale"] * data.constants["scale_m"] + 478
 
                 planet_id = self.canvas.create_oval(
-                    body.screen_x - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
-                    body.screen_y - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
-                    body.screen_x + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
-                    body.screen_y + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                    body.screen_x + data.constants["move_mx"] - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                    body.screen_y + data.constants["move_my"] - body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                    body.screen_x + data.constants["move_mx"] + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
+                    body.screen_y + data.constants["move_my"] + body.radius * data.constants["real_scale"] * data.constants["scale_m"],
                     fill=body.color,
                     outline=""
                 )
@@ -311,14 +370,34 @@ class App:
         global pause_times
         running = not running
         pause_times += 1
+        self.remove_all_tooltips()
 
     def spawn(self):
         global blackhole
         blackhole = not blackhole
-        if not blackhole:
-            tk.Button(self.root, text="Highlight Black Hole", command=self.BHHighlight).place_forget()
         if blackhole:
-            self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 150, y=120)
+            data.constants["time_step"] = 1
+            data.constants["dt"] = 1
+            data.constants["update_speed"] = 1
+            data.constants["real_scale"] = 5e-11
+        self.root_elements["BHHighlight"].place_forget()
+        if not start_bh:
+            self.root_elements["planet_combobox"].place_forget()
+        self.root_elements["IsBH"].place_forget()
+        self.root.update_idletasks()
+        if not blackhole:
+            if not start_bh:
+                self.root_elements["planet_combobox"].place(
+                    x=self.root.winfo_screenwidth() - self.root_elements["planet_combobox"].winfo_reqwidth(), y=90)
+                self.root_elements["IsBH"].place(
+                    x=self.root.winfo_screenwidth() - self.root_elements["IsBH"].winfo_reqwidth(), y=120)
+            else:
+                self.root_elements["IsBH"].place(
+                    x=self.root.winfo_screenwidth() - self.root_elements["IsBH"].winfo_reqwidth(), y=90)
+        if blackhole:
+            self.root_elements["IsBH"].place(
+                x=self.root.winfo_screenwidth() - self.root_elements["IsBH"].winfo_reqwidth(), y=90)
+            self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - self.root_elements["BHHighlight"].winfo_reqwidth(), y=120)
 
     @staticmethod
     def toggle_trails() -> None:
@@ -501,22 +580,114 @@ class App:
         visible = not visible
 
         if visible:
-            self.root_elements["credits"].place(x=self.root.winfo_screenwidth() - 180, y=self.root.winfo_screenheight() - 100)
-            self.root_elements["controls"].place(x=-15, y=self.root.winfo_screenheight() - 120)
-            self.root_elements["time_text"].place(x=(self.root.winfo_screenwidth() - data.Time_text.font.measure(data.Time_text.text)) / 2, y=self.root.winfo_screenheight()-170)
-            self.root_elements["trails_button"].place(x=self.root.winfo_screenwidth() - 117, y=0)
-            self.root_elements["stars_button"].place(x=self.root.winfo_screenwidth() - 103, y=30)
+            self.root.update_idletasks()
+
+            self.root_elements["credits"].place(
+                x=self.root.winfo_screenwidth() - self.root_elements["credits"].winfo_reqwidth(),
+                y=self.root.winfo_screenheight() - self.root_elements["credits"].winfo_reqheight() * 2)
+            self.root_elements["controls"].place(
+                x=0,
+                y=self.root.winfo_screenheight() - self.root_elements["controls"].winfo_reqheight() * 1.5)
+            self.root_elements["time_text"].place(
+                x=(self.root.winfo_screenwidth() - data.Time_text.font.measure(data.Time_text.text)) / 2,
+                y=self.root.winfo_screenheight() - 170)
+            self.root_elements["trails_button"].place(
+                x=self.root.winfo_screenwidth() - self.root_elements["trails_button"].winfo_reqwidth(), y=0)
+            self.root_elements["stars_button"].place(
+                x=self.root.winfo_screenwidth() - self.root_elements["stars_button"].winfo_reqwidth(), y=30)
             if not kepler_check:
-                self.root_elements["moons_button"].place(x=self.root.winfo_screenwidth() - 115, y=60)
+                self.root_elements["moons_button"].place(
+                    x=self.root.winfo_screenwidth() - self.root_elements["moons_button"].winfo_reqwidth(), y=60)
             if data.constants["user_scale"]:
-                self.root_elements["text_button"].place(x=self.root.winfo_screenwidth() - 100, y=90)
+                self.root_elements["text_button"].place(
+                    x=self.root.winfo_screenwidth() - self.root_elements["text_button"].winfo_reqwidth(), y=90)
             if not data.constants["user_scale"] and not kepler_check:
-                self.root_elements["IsBH"].place(x=self.root.winfo_screenwidth() - 150, y=90)
+                if blackhole:
+                    self.root_elements["IsBH"].place(
+                        x=self.root.winfo_screenwidth() - self.root_elements["IsBH"].winfo_reqwidth(), y=90)
+                else:
+                    self.root_elements["IsBH"].place(
+                            x=self.root.winfo_screenwidth() - self.root_elements["IsBH"].winfo_reqwidth(), y=120)
             if blackhole:
-                self.root_elements["BHHighlight"].place(x=self.root.winfo_screenwidth() - 160, y=120)
+                self.root_elements["BHHighlight"].place(
+                    x=self.root.winfo_screenwidth() - self.root_elements["BHHighlight"].winfo_reqwidth(), y=120)
+            if not kepler_check and not blackhole:
+                if data.constants["user_scale"]:
+                    self.root_elements["planet_combobox"].place(
+                        x=self.root.winfo_screenwidth() - self.root_elements["planet_combobox"].winfo_reqwidth(), y=120)
+                else:
+                    self.root_elements["planet_combobox"].place(
+                        x=self.root.winfo_screenwidth() - self.root_elements["planet_combobox"].winfo_reqwidth(), y=90)
         else:
             for element in self.root_elements.values():
                 element.place_forget()
+            self.remove_all_tooltips()
+
+    @staticmethod
+    def add_move(event=None):
+        for body in data.bodies:
+            body.trail.clear()
+        for body in data.kepler_bodies:
+            body.trail.clear()
+        data.constants["move_mx"] += 10
+
+    @staticmethod
+    def red_move(event=None):
+        for body in data.bodies:
+            body.trail.clear()
+        for body in data.kepler_bodies:
+            body.trail.clear()
+        data.constants["move_mx"] -= 10
+
+    @staticmethod
+    def add_move_y(event=None):
+        for body in data.bodies:
+            body.trail.clear()
+        for body in data.kepler_bodies:
+            body.trail.clear()
+        data.constants["move_my"] += 10
+
+    @staticmethod
+    def red_move_y(event=None):
+        for body in data.bodies:
+            body.trail.clear()
+        for body in data.kepler_bodies:
+            body.trail.clear()
+        data.constants["move_my"] -= 10
+
+    def on_planet_select(self, event):
+        self.current_planet = self.planet_var.get()
+        current_multiplier = self.planet_multipliers.get(self.current_planet, 1.0)
+        self.multiplier_var.set(current_multiplier)
+        self.root_elements["planet_scale_text"].config(text=f"{self.current_planet} mass multiplier: {current_multiplier:.1f}")
+        screen_width = self.root.winfo_screenwidth()
+        self.root_elements["planet_scale"].place(x=screen_width - 210, y=200)
+        self.root_elements["planet_scale_text"].place(x=screen_width - 210, y=170)
+
+    def apply_mass_multiplier(self):
+        if self.current_planet:
+            for body in data.bodies:
+                if body.name == self.current_planet:
+                    body.mass *= self.planet_multipliers[self.current_planet]
+                    break
+
+    def on_multiplier_change(self, value):
+        if self.current_planet:
+            multiplier_value = float(value)
+            self.planet_multipliers[self.current_planet] = multiplier_value
+            self.root_elements["planet_scale_text"].config(text=f"{self.current_planet} mass multiplier: {multiplier_value:.1f}")
+            self.apply_mass_multiplier()
+
+    def update_value(self, val):
+        self.root_elements["planet_scale_text"].config(text=f"Значение: {float(val):.1f}")
+
+    def apply_all_multipliers(self):
+        for body in data.bodies:
+            if body.name in self.planet_multipliers:
+                if not hasattr(body, 'original_mass'):
+                    body.original_mass = body.mass
+                body.mass = body.original_mass * self.planet_multipliers[body.name]
+
 
 for body in data.bodies:
     if body.name == "Sun" or body.name == "BlackHole":

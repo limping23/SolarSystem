@@ -77,7 +77,7 @@ def update_position(body: CelestialBody, blackhole: bool, dt: float = data.const
         forces.append((force, force_angle))
     Sum_forces = sum_forces(forces) # The force with which all planets are acted upon by another planet and its direction
     acceleration_res = Sum_forces[0] / body.mass # Momental acceleration
-    acceleration = data.Acceleration(acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])) # True acceleration in the Oxy axis
+    acceleration = data.Point(acceleration_res * cos(Sum_forces[1]), acceleration_res * sin(Sum_forces[1])) # True acceleration in the Oxy axis
     movement = body.Orbital_speed * dt + acceleration * dt**2 / 2
     body.next_pos = body.position + movement # Setting new pos for planet
     if blackhole and (distance(body.position, data.BlackHole.position) < data.BlackHole.radius  or is_between(body.position, body.next_pos, data.BlackHole.position)):
@@ -89,15 +89,15 @@ def update_position(body: CelestialBody, blackhole: bool, dt: float = data.const
     body.update_counter += 1
     if data.constants["user_scale"]:
         if body.update_counter % body.trail_update_interval == 0:
-            screen_x = body.position.x * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 735
-            screen_y = body.position.y * body.scaler * data.constants["scale_m"] * data.constants["scale"] + 478
+            screen_x = body.position.x * body.scaler * data.constants["scale_m"] * data.constants["scale"] + data.constants["root_info"][0] / 2 + data.constants["move_mx"]
+            screen_y = body.position.y * body.scaler * data.constants["scale_m"] * data.constants["scale"] + data.constants["root_info"][1] / 2 + data.constants["move_my"]
             if len(body.trail) == 0 or distance_to_last(body.trail, screen_x, screen_y) > body.min_trail_length:
                 body.trail.append((screen_x, screen_y))
                 if len(body.trail) > body.max_trail_length:
                     body.trail.pop(0)
     else:
-        screen_x = body.position.x * data.constants["real_scale"] * data.constants["scale_m"] + 735
-        screen_y = body.position.y * data.constants["real_scale"] * data.constants["scale_m"] + 478
+        screen_x = body.position.x * data.constants["real_scale"] * data.constants["scale_m"] + data.constants["root_info"][0] / 2 + data.constants["move_mx"]
+        screen_y = body.position.y * data.constants["real_scale"] * data.constants["scale_m"] + data.constants["root_info"][1] / 2 + data.constants["move_my"]
         if len(body.trail) == 0 or distance_to_last(body.trail, screen_x, screen_y) > body.min_trail_length:
             body.trail.append((screen_x, screen_y))
             if len(body.trail) > body.max_trail_length:

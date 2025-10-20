@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Self
 import random
+import tkinter as tk
 
 
 constants = {
@@ -12,7 +13,20 @@ constants = {
     "sun_mass": 1.989e30,
     "dt": 1200,
     "scale_m": 1,
-    "update_speed": 1
+    "update_speed": 1,
+    "move_mx": 0,
+    "move_my": 0,
+    "root_info": (0,0)
+}
+planet_multipliers = {
+    "Меркурий": 1.0,
+    "Венера": 1.0,
+    "Земля": 1.0,
+    "Марс": 1.0,
+    "Юпитер": 1.0,
+    "Сатурн": 1.0,
+    "Уран": 1.0,
+    "Нептун": 1.0
 }
 
 
@@ -31,7 +45,7 @@ class Point:
         return Point(self.x * scalar, self.y * scalar)
 
     def __rmul__(self, scalar) -> Self:
-        return Point(self.x * scalar, self.y * scalar)
+        return self * scalar
 
     def __truediv__(self, scalar) -> Self:
         return Point(self.x / scalar, self.y / scalar)
@@ -62,55 +76,13 @@ class Vector:
                       (self.y2 - self.y1) / scalar, Point(self.x1, self.y1))
 
 
-class OrbitalSpeed:
-    def __init__(self, x: float, y: float) -> None:
-        self.x = x
-        self.y = y
-
-    def __add__(self, other) -> Self:
-        return OrbitalSpeed(self.x + other.x, self.y + other.y)
-
-    def __sub__(self, other) -> Self:
-        return OrbitalSpeed(self.x - other.x, self.y - other.y)
-
-    def __mul__(self, scalar: float) -> Self:
-        return OrbitalSpeed(self.x * scalar, self.y * scalar)
-
-    def __rmul__(self, scalar: float) -> Self:
-        return self * scalar
-
-    def __truediv__(self, scalar: float) -> Self:
-        return OrbitalSpeed(self.x / scalar, self.y / scalar)
-
-
-class Acceleration:
-    def __init__(self, x: float, y: float) -> None:
-        self.x = x
-        self.y = y
-
-    def __add__(self, other) -> Self:
-        return Acceleration(self.x + other.x, self.y + other.y)
-
-    def __sub__(self, other) -> Self:
-        return Acceleration(self.x - other.x, self.y - other.y)
-
-    def __mul__(self, scalar: float) -> Self:
-        return Acceleration(self.x * scalar, self.y * scalar)
-
-    def __rmul__(self, scalar: float) -> Self:
-        return self * scalar
-
-    def __truediv__(self, scalar: float) -> Self:
-        return Acceleration(self.x / scalar, self.y / scalar)
-
-
 @dataclass
 class CelestialBody:
     name: str
     mass: float
     radius: float
     position: Point
-    Orbital_speed: OrbitalSpeed
+    Orbital_speed: Point
     color: str
     screen_radius: float
     trail: list[tuple]
@@ -156,7 +128,7 @@ Sun = CelestialBody(
     mass=constants['sun_mass'],
     radius=6.9634e8,
     position=Point(0, 0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#FFF5C3",
     screen_radius=20,
     scaler=1,
@@ -175,7 +147,7 @@ Mercury = CelestialBody(
     mass=3.301e23,
     radius=2.44e6,
     position=Point(5.79e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#908D84",
     screen_radius=5,
     scaler=1.2,
@@ -194,7 +166,7 @@ Venus = CelestialBody(
     mass=4.867e24,
     radius=6.052e6,
     position=Point(1.082e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#D6C690",
     screen_radius=6,
     scaler=1.18,
@@ -213,7 +185,7 @@ Earth = CelestialBody(
     mass=5.972e24,
     radius=6.371e6,
     position=Point(1.496e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#1F75FE",
     screen_radius=6,
     scaler=1.2,
@@ -232,7 +204,7 @@ Moon = CelestialBody(
     mass=7.348e22,
     radius=1.7371e6,
     position=Point(Earth.position.x, Earth.position.y + 3.844e8),
-    Orbital_speed=OrbitalSpeed(0,0),
+    Orbital_speed=Point(0,0),
     color="#C2B280",
     screen_radius=3,
     scaler=Earth.scaler,
@@ -251,7 +223,7 @@ Mars = CelestialBody(
     mass=6.417e23,
     radius=3.39e6,
     position=Point(2.279e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 00),
+    Orbital_speed=Point(0, 00),
     color="#C1440E",
     screen_radius=5,
     scaler=1.1,
@@ -270,7 +242,7 @@ Jupiter = CelestialBody(
     mass=1.898e27,
     radius=6.9911e7,
     position=Point(7.783e11, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#D2B48C",
     screen_radius=10,
     scaler=0.5,
@@ -289,7 +261,7 @@ Io = CelestialBody(
     mass=8.9319e22,
     radius=1.8213e6,
     position=Point(Jupiter.position.x, Jupiter.position.y + 4.217e8),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#E5B73B",
     screen_radius=2,
     scaler=Jupiter.scaler,
@@ -308,7 +280,7 @@ Europa = CelestialBody(
     mass=4.8e22,
     radius=1.561e6,
     position=Point(Jupiter.position.x, Jupiter.position.y + 6.711e8),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#D9C7A9",
     screen_radius=2,
     scaler=Jupiter.scaler,
@@ -327,7 +299,7 @@ Ganymede = CelestialBody(
     mass=1.48e23,
     radius=2.634e6,
     position=Point(Jupiter.position.x, Jupiter.position.y + 1.070e9),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#92877D",
     screen_radius=2,
     scaler=Jupiter.scaler,
@@ -346,7 +318,7 @@ Callisto = CelestialBody(
     mass=1.08e23,
     radius=2.41e6,
     position=Point(Jupiter.position.x, Jupiter.position.y + 1.883e9),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#5E4B3C",
     screen_radius=2,
     scaler=Jupiter.scaler,
@@ -365,7 +337,7 @@ Saturn = CelestialBody(
     mass=5.683e26,
     radius=5.8232e7,
     position=Point(1.429e12, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#F5DEB3",
     screen_radius=10,
     scaler=0.39,
@@ -384,7 +356,7 @@ Uranus = CelestialBody(
     mass=8.681e25,
     radius=2.5362e7,
     position=Point(2.871e12, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#A6E7E3",
     screen_radius=9,
     scaler=0.25,
@@ -403,7 +375,7 @@ Neptune = CelestialBody(
     mass=1.024e26,
     radius=2.4622e7,
     position=Point(4.504e12, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#2E3DD3",
     screen_radius=9,
     scaler=0.19,
@@ -422,7 +394,7 @@ BlackHole = CelestialBody(
     mass=8.256e34,
     radius=1.23e10,
     position=Point(x=random.randint(random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12))), y=random.randint(random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12)))),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#000000",
     screen_radius=20,
     scaler=1,
@@ -441,7 +413,7 @@ Kepler11 = CelestialBody(
     mass=0.961 * constants['sun_mass'],
     radius=7.65e8,
     position=Point(0, 0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#FFD700",
     screen_radius=25,
     scaler=1,
@@ -460,7 +432,7 @@ Kepler11b = CelestialBody(
     mass=1.9 * 5.972e24,
     radius=1.147e7,
     position=Point(1.36e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#C4A484",
     screen_radius=6,
     scaler=1.2,
@@ -479,7 +451,7 @@ Kepler11c = CelestialBody(
     mass=2.9 * 5.972e24,
     radius=1.829e7,
     position=Point(1.6e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#8B7355",
     screen_radius=8,
     scaler=1.2,
@@ -498,7 +470,7 @@ Kepler11d = CelestialBody(
     mass=7.3 * 5.972e24,
     radius=1.988e7,
     position=Point(2.32e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#556B2F",
     screen_radius=9,
     scaler=1.2,
@@ -517,7 +489,7 @@ Kepler11e = CelestialBody(
     mass=8.0 * 5.972e24,
     radius=2.67e7,
     position=Point(2.92e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#4682B4",
     screen_radius=11,
     scaler=1.2,
@@ -536,7 +508,7 @@ Kepler11f = CelestialBody(
     mass=2.0 * 5.972e24,
     radius=1.663e7,
     position=Point(3.74e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#32CD32",
     screen_radius=7,
     scaler=1.2,
@@ -555,7 +527,7 @@ Kepler11g = CelestialBody(
     mass=25.0 * 5.972e24,
     radius=2.123e7,
     position=Point(6.97e10, 0.0),
-    Orbital_speed=OrbitalSpeed(0, 0),
+    Orbital_speed=Point(0, 0),
     color="#8A2BE2",
     screen_radius=10,
     scaler=1.2,
@@ -606,7 +578,7 @@ jupiter_moons = [
 
 
 Credits = Text(
-    text="Made by\n\tArtem Tsygankov\n\tMatvey Nemudrov",
+    text="\tMade by\nArtem Tsygankov\nMatvey Nemudrov",
     font=...,
     bg_color="black",
     text_color="white",
@@ -614,9 +586,9 @@ Credits = Text(
 
 Controls = Text(
     text="<esc> - quit\t\n<space> - pause\t\n<left-arr> - zoom in\t\n"
-         "<right-arr> - zoom out\n<up-arr> - speed up"
+         "<right-arr> - zoom out\n\t<up-arr> - speed up"
          "\t\n      <down-arr> - slow down"
-         "\n<E> - hide ui\t",
+         "\n<E> - hide ui\t\n<WASD> - move\t",
     font=...,
     bg_color="black",
     text_color="white"
