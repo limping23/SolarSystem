@@ -4,6 +4,7 @@ from math import sqrt, cos, sin
 from data import CelestialBody
 import datetime
 import os
+import sys
 
 
 def is_between(p1: data.Point, p2: data.Point, p3: data.Point, eps=1e-9) -> bool:
@@ -189,5 +190,9 @@ def format_ymwd(seconds: int) -> str:
 
 
 def resource_path(relative_path: str) -> str:
-    base_path = os.path.abspath(".")
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
     return os.path.join(base_path, relative_path)
