@@ -28,7 +28,7 @@ start_bh = True
 pygame.mixer.init()
 pygame.mixer.music.load(
     main.resource_path(
-        "files/Hans_Zimmer_-_S.T.A.Y._Interstellar_Main_Theme_(SkySound.cc).mp3"
+        "Hans_Zimmer_-_S.T.A.Y._Interstellar_Main_Theme_(SkySound.cc).mp3"
     )
 )
 pygame.mixer.music.play(-1)
@@ -288,7 +288,7 @@ class App:
         self.root.bind("<S>", self.red_move_y)
 
         self.root.focus_force()
-
+        self.bind_slider_hide_events()
         self.updating = True
         self.root.after(data.constants["update_speed"], self.update)
 
@@ -1021,23 +1021,37 @@ class App:
             self.tooltip.withdraw()
             if data.constants["user_scale"]:
                 self.tooltip_text.config(
-                    text=f"{name}\nMass: {mass} kg\nRadius: {radius} m\nSpeed: {speed} m/s\nX: {round(x, 2)}, Y: {round(y, 2)}"
+                    text=f"{name}\nMass: {mass} kg\nRadius: {radius} m\nSpeed: {speed} m/s\nX: {
+                        round(
+                            x,
+                            2)}, Y: {
+                        round(
+                            y,
+                            2)}"
                 )
             self.tooltip_text.config(
-                text=f"{name}\nMass: {mass} kg\nRadius: {radius} m\nSpeed: {speed} m/s\nX: {round(x*data.constants["scale_m"], 2)}e7, Y: {round(y*data.constants["scale_m"], 2)}e7"
+                text=f"{name}\nMass: {mass} kg\nRadius: {radius} m\nSpeed: {speed} m/s\nX: {
+                    round(
+                        x *
+                        data.constants["scale_m"],
+                        2)}e7, Y: {
+                    round(
+                        y *
+                        data.constants["scale_m"],
+                        2)}e7"
             )
             self.tooltip.wm_geometry(
-                f"+{self.root.winfo_screenwidth()-250}+{self.root.winfo_screenheight()-700}"
+                f"+{self.root.winfo_screenwidth() - 250}+{self.root.winfo_screenheight() - 700}"
             )
             self.tooltip.deiconify()
 
         def hide_tooltip(event) -> None:
+            self.root_elements["planet_scale"].destroy()
             self.tooltip.destroy()
             self.tooltip_text.destroy()
 
         if not running:
             self.canvas.tag_bind(planet_id, "<Button-1>", show_tooltip)
-            self.root.bind("<Button-2>", hide_tooltip)
 
         self.tooltips[planet_id] = self.tooltip
 
@@ -1195,7 +1209,9 @@ class App:
         current_multiplier = self.planet_multipliers.get(self.current_planet, 1.0)
         self.multiplier_var.set(current_multiplier)
         self.root_elements["planet_scale_text"].config(
-            text=f"{self.current_planet} mass multiplier: {current_multiplier:.1f}"
+            text=f"{
+                self.current_planet} mass multiplier: {
+                current_multiplier:.1f}"
         )
         self.root_elements["planet_scale"].place(
             x=self.root.winfo_screenwidth()
@@ -1207,6 +1223,24 @@ class App:
             - self.root_elements["planet_scale_text"].winfo_reqwidth(),
             y=170,
         )
+        slider_visible = (
+            "planet_scale" in self.root_elements
+            and self.root_elements["planet_scale"].winfo_ismapped()
+        )
+
+        if slider_visible:
+            self.hide_slider()
+        else:
+            self.root_elements["planet_scale"].place(
+                x=self.root.winfo_screenwidth()
+                - self.root_elements["planet_scale"].winfo_reqwidth(),
+                y=200,
+            )
+            self.root_elements["planet_scale_text"].place(
+                x=self.root.winfo_screenwidth()
+                - self.root_elements["planet_scale_text"].winfo_reqwidth(),
+                y=170,
+            )
 
     def apply_mass_multiplier(self) -> None:
         if self.current_planet:
@@ -1220,7 +1254,9 @@ class App:
             multiplier_value = float(value)
             self.planet_multipliers[self.current_planet] = multiplier_value
             self.root_elements["planet_scale_text"].config(
-                text=f"{self.current_planet} mass multiplier: {multiplier_value:.1f}"
+                text=f"{
+                    self.current_planet} mass multiplier: {
+                    multiplier_value:.1f}"
             )
             self.apply_mass_multiplier()
 
@@ -1235,6 +1271,24 @@ class App:
                 if not hasattr(body, "original_mass"):
                     body.original_mass = body.mass
                 body.mass = body.original_mass * self.planet_multipliers[body.name]
+
+    def bind_slider_hide_events(self) -> None:
+        self.root.bind("<Button-2>", self.hide_slider)
+        self.root.bind("<Button-3>", self.hide_slider)
+        self.root.bind("<Control-Button-1>", self.hide_slider)
+
+        if "planet_scale" in self.root_elements:
+            self.root_elements["planet_scale"].bind("<Button-2>", self.hide_slider)
+            self.root_elements["planet_scale"].bind("<Button-3>", self.hide_slider)
+        if "planet_scale_text" in self.root_elements:
+            self.root_elements["planet_scale_text"].bind("<Button-2>", self.hide_slider)
+            self.root_elements["planet_scale_text"].bind("<Button-3>", self.hide_slider)
+
+    def hide_slider(self, event=None) -> None:
+        if "planet_scale" in self.root_elements:
+            self.root_elements["planet_scale"].place_forget()
+        if "planet_scale_text" in self.root_elements:
+            self.root_elements["planet_scale_text"].place_forget()
 
 
 for body in data.bodies:

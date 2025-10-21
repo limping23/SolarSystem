@@ -35,8 +35,6 @@ def set_circular_velocity(body: CelestialBody, center: CelestialBody) -> None:
 
 
 # Barycenter
-
-
 def remove_system_momentum(bodies: list[CelestialBody]) -> None:
     px = sum(body.mass * body.Orbital_speed.x for body in bodies)
     py = sum(body.mass * body.Orbital_speed.y for body in bodies)
@@ -65,7 +63,7 @@ def angle(position: data.Vector) -> float:  # Angle of vector relative to x
 
 
 # Sum of all forces acting on some object
-def sum_forces(forces: list[tuple]) -> tuple:
+def sum_forces(forces: list[tuple]) -> tuple[float, float]:
     force_res_x = 0
     force_res_y = 0
     for items in forces:
@@ -173,7 +171,7 @@ def update_position(
 
 
 # Distance from last trail point to current
-def distance_to_last(trail: list[tuple], x: float, y: float) -> float:
+def distance_to_last(trail: list[tuple[float, float]], x: float, y: float) -> float:
     if not trail:
         return float("inf")
     last_x, last_y = trail[-1]

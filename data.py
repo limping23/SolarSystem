@@ -98,7 +98,7 @@ class CelestialBody:
     Orbital_speed: Point
     color: str
     screen_radius: float
-    trail: list[tuple]
+    trail: list[tuple[float, float]]
     max_trail_length: float
     scaler: float
     update_counter: int
