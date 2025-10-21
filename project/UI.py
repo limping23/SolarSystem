@@ -29,7 +29,7 @@ reset_switch = 3
 pygame.mixer.init()
 pygame.mixer.music.load(
     main.resource_path(
-        "Hans_Zimmer_-_S.T.A.Y._Interstellar_Main_Theme_(SkySound.cc).mp3"
+        "../assets/Hans_Zimmer_-_S.T.A.Y._Interstellar_Main_Theme_(SkySound.cc).mp3"
     )
 )
 pygame.mixer.music.play(-1)
