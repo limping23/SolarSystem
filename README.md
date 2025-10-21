@@ -80,5 +80,5 @@ python Run.py
 - **Multiple View Modes**: Switch between simplified and realistic scales
 - **Planet Information**: Pause (space button) and press on the planet to see information about it
 
-### Project was made by [Matvey](https://github.com/limping23) and [me](https://github.com/MalaysiaKiller)
+### Project was made by [me](https://github.com/limping23) and [Artem](https://github.com/MalaysiaKiller)
 P.S. vielen Dank an Sergey für eine gute Idee und seine Hilfe❤️
