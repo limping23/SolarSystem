@@ -17,16 +17,6 @@ constants = {
     "move_my": 0,
     "root_info": (0, 0),
 }
-planet_multipliers = {
-    "Меркурий": 1.0,
-    "Венера": 1.0,
-    "Земля": 1.0,
-    "Марс": 1.0,
-    "Юпитер": 1.0,
-    "Сатурн": 1.0,
-    "Уран": 1.0,
-    "Нептун": 1.0,
-}
 
 
 class Point:
@@ -95,6 +85,7 @@ class CelestialBody:
     mass: float
     radius: float
     position: Point
+    start_position: Point
     Orbital_speed: Point
     color: str
     screen_radius: float
@@ -154,6 +145,7 @@ Sun = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(0, 0),
 )
 
 Mercury = CelestialBody(
@@ -173,6 +165,7 @@ Mercury = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(5.79e10, 0),
 )
 
 Venus = CelestialBody(
@@ -192,6 +185,7 @@ Venus = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(1.082e11, 0),
 )
 
 Earth = CelestialBody(
@@ -211,6 +205,7 @@ Earth = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(1.496e11, 0),
 )
 
 Moon = CelestialBody(
@@ -230,6 +225,7 @@ Moon = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(Earth.start_position.x, Earth.start_position.y + 3.844e8),
 )
 
 Mars = CelestialBody(
@@ -237,7 +233,7 @@ Mars = CelestialBody(
     mass=6.417e23,
     radius=3.39e6,
     position=Point(2.279e11, 0.0),
-    Orbital_speed=Point(0, 00),
+    Orbital_speed=Point(0, 0),
     color="#C1440E",
     screen_radius=5,
     scaler=1.1,
@@ -249,6 +245,7 @@ Mars = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(2.279e11, 0),
 )
 
 Jupiter = CelestialBody(
@@ -268,6 +265,7 @@ Jupiter = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(7.783e11, 0),
 )
 
 Io = CelestialBody(
@@ -287,6 +285,7 @@ Io = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(Jupiter.start_position.x, Jupiter.start_position.y + 4.217e8),
 )
 
 Europa = CelestialBody(
@@ -306,6 +305,7 @@ Europa = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(Jupiter.start_position.x, Jupiter.start_position.y + 6.711e8),
 )
 
 Ganymede = CelestialBody(
@@ -325,6 +325,7 @@ Ganymede = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(Jupiter.start_position.x, Jupiter.start_position.y + 1.070e9),
 )
 
 Callisto = CelestialBody(
@@ -344,6 +345,7 @@ Callisto = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(Jupiter.start_position.x, Jupiter.start_position.y + 1.883e9),
 )
 
 Saturn = CelestialBody(
@@ -363,6 +365,7 @@ Saturn = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(1.429e12, 0),
 )
 
 Uranus = CelestialBody(
@@ -382,6 +385,7 @@ Uranus = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(2.871e12, 0),
 )
 
 Neptune = CelestialBody(
@@ -401,6 +405,7 @@ Neptune = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(4.504e12, 0),
 )
 
 BlackHole = CelestialBody(
@@ -427,7 +432,16 @@ BlackHole = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(
+        x=random.randint(
+            random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12))
+        ),
+        y=random.randint(
+            random.randint(int(-5e12), int(-5e10)), random.randint(int(5e10), int(5e12))
+        ),
+    ),
 )
+
 Kepler11 = CelestialBody(
     name="Kepler-11",
     mass=0.961 * constants["sun_mass"],
@@ -445,6 +459,7 @@ Kepler11 = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(0, 0),
 )
 
 Kepler11b = CelestialBody(
@@ -464,6 +479,7 @@ Kepler11b = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(1.36e10, 0),
 )
 
 Kepler11c = CelestialBody(
@@ -483,6 +499,7 @@ Kepler11c = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(1.6e10, 0),
 )
 
 Kepler11d = CelestialBody(
@@ -502,6 +519,7 @@ Kepler11d = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(2.32e10, 0),
 )
 
 Kepler11e = CelestialBody(
@@ -521,6 +539,7 @@ Kepler11e = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(2.92e10, 0),
 )
 
 Kepler11f = CelestialBody(
@@ -540,6 +559,7 @@ Kepler11f = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(3.74e10, 0),
 )
 
 Kepler11g = CelestialBody(
@@ -559,6 +579,7 @@ Kepler11g = CelestialBody(
     screen_x=0,
     screen_y=0,
     next_pos=Point(0, 0),
+    start_position=Point(6.97e10, 0),
 )
 
 bodies = [
@@ -604,9 +625,10 @@ Credits = Text(
 
 Controls = Text(
     text="<esc> - quit\t\n<space> - pause\t\n<left-arr> - zoom in\t\n"
-    "<right-arr> - zoom out\n<up-arr> - speed up"
-    "\t\n    <down-arr> - slow down"
-    "\n<E> - hide ui\t\n<WASD> - move\t",
+    " <right-arr> - zoom out\n<up-arr> - speed up"
+    "\t\n     <down-arr> - slow down"
+    "\n<E> - hide ui\t\n<WASD> - move\t"
+    "\n<R> - reset system\t",
     font=...,
     bg_color="black",
     text_color="white",

@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 from tkinter import ttk
 import data
@@ -24,6 +25,7 @@ joker = False
 blackhole = False
 BHHighlight = True
 start_bh = True
+reset_switch = 3
 
 pygame.mixer.init()
 pygame.mixer.music.load(
@@ -286,6 +288,8 @@ class App:
         self.root.bind("<w>", self.add_move_y)
         self.root.bind("<s>", self.red_move_y)
         self.root.bind("<S>", self.red_move_y)
+        self.root.bind("<R>", self.reset_switcher)
+        self.root.bind("<r>", self.reset_switcher)
 
         self.root.focus_force()
         self.bind_slider_hide_events()
@@ -402,7 +406,7 @@ class App:
             self.root.bind("<Escape>", self.quit_program)
 
     def update(self) -> None:
-        global time_past, blackhole, BHHighlight
+        global time_past, blackhole, BHHighlight, reset_switch
         if not kepler_check:
             if not self.updating or not self.root or not self.root.winfo_exists():
                 return
@@ -715,6 +719,11 @@ class App:
         if self.updating and self.root and self.root.winfo_exists():
             self.root.after(data.constants["update_speed"], self.update)
 
+        if reset_switch <= 2:
+            reset_switch += 1
+            self.hide_ui()
+            self.reset()
+
     def quit_program(self, event=None) -> None:
         self.remove_all_tooltips()
         self.root.destroy()
@@ -814,7 +823,7 @@ class App:
         show_stars = False
         data.constants["time_step"] = 1
         data.constants["dt"] = 1
-        data.constants["real_scale"] = 5e-8
+        data.constants["real_scale"] = 3e-8
         return self.open_main_root()
 
     def black_hole(self) -> None:
@@ -854,6 +863,7 @@ class App:
             match body.name:
                 case "Jupiter":
                     body.position = data.Point(0, 0)
+                    body.start_position = data.Point(0, 0)
                     body.Orbital_speed = data.Point(0, 0)
                     body.screen_radius = 25 if t else body.screen_radius
                 case "Io":
@@ -864,6 +874,10 @@ class App:
                     body.screen_radius = 6 if t else body.screen_radius
                     body.max_trail_length = 300
                     body.min_trail_length = 0 if t else body.min_trail_length
+                    body.start_position = data.Point(
+                        data.Jupiter.start_position.x,
+                        data.Jupiter.start_position.y + 4.217e8,
+                    )
                 case "Europa":
                     body.position = data.Point(
                         data.Jupiter.position.x, data.Jupiter.position.y + 6.711e8
@@ -872,6 +886,10 @@ class App:
                     body.screen_radius = 6 if t else body.screen_radius
                     body.max_trail_length = 300
                     body.min_trail_length = 0 if t else body.min_trail_length
+                    body.start_position = data.Point(
+                        data.Jupiter.start_position.x,
+                        data.Jupiter.start_position.y + 6.711e8,
+                    )
                 case "Ganymede":
                     body.position = data.Point(
                         data.Jupiter.position.x, data.Jupiter.position.y + 1.070e9
@@ -880,6 +898,10 @@ class App:
                     body.screen_radius = 6 if t else body.screen_radius
                     body.max_trail_length = 320
                     body.min_trail_length = 0 if t else body.min_trail_length
+                    body.start_position = data.Point(
+                        data.Jupiter.start_position.x,
+                        data.Jupiter.start_position.y + 1.070e9,
+                    )
                 case "Callisto":
                     body.position = data.Point(
                         data.Jupiter.position.x, data.Jupiter.position.y + 1.883e9
@@ -888,6 +910,10 @@ class App:
                     body.screen_radius = 6 if t else body.screen_radius
                     body.max_trail_length = 450
                     body.min_trail_length = 0 if t else body.min_trail_length
+                    body.start_position = data.Point(
+                        data.Jupiter.start_position.x,
+                        data.Jupiter.start_position.y + 1.883e9,
+                    )
         return self.open_main_root()
 
     def jm_s(self) -> None:
@@ -1171,6 +1197,86 @@ class App:
             for element in self.root_elements.values():
                 element.place_forget()
             self.remove_all_tooltips()
+
+    def reset(self, event=None) -> None:
+        global time_past, blackhole
+        blackhole = 1 if start_bh else 0
+        time_past = 0
+        for body in data.bodies:
+            if center_is_jupiter and body.name == "Jupiter":
+                body.position = data.Point(0, 0)
+            else:
+                body.position = body.start_position
+            body.Orbital_speed = data.Point(0, 0)
+            body.screen_x = 0
+            body.screen_y = 0
+            body.next_pos = data.Point(0, 0)
+            body.trail.clear()
+            data.constants["scale_m"] = 1
+            data.constants["move_mx"] = 0
+            data.constants["move_my"] = 0
+            self.planet_multipliers[body.name] = 1
+            if (
+                center_is_jupiter
+                and body.name == "Jupiter"
+                or kepler_check
+                and body.name == "Kepler-11"
+                or body.name == "BlackHole"
+                or not center_is_jupiter
+                and not kepler_check
+                and not start_bh
+                and body.name == "Sun"
+            ):
+                continue
+            match body.name:
+                case (
+                    "Mercury"
+                    | "Venus"
+                    | "Earth"
+                    | "Mars"
+                    | "Jupiter"
+                    | "Saturn"
+                    | "Neptune"
+                ):
+                    main.set_circular_velocity(body, data.Sun)
+                case "Moon":
+                    main.set_circular_velocity(body, data.Earth)
+                case "Io" | "Europa" | "Ganymede" | "Callisto":
+                    main.set_circular_velocity(body, data.Jupiter)
+                case (
+                    "Kepler-11b"
+                    | "Kepler-11c"
+                    | "Kepler-11d"
+                    | "Kepler-11e"
+                    | "Kepler-11f"
+                    | "Kepler-11g"
+                ):
+                    main.set_circular_velocity(body, data.Kepler11)
+        if not kepler_check:
+            if not start_bh:
+                if not center_is_jupiter:
+                    data.constants["dt"] = 1200
+                    data.constants["time_step"] = 10
+                    data.constants["update_speed"] = 1
+                else:
+                    data.constants["dt"] = 1
+                    data.constants["time_step"] = 1
+                    data.constants["update_speed"] = 16
+            else:
+                data.constants["time_step"] = 1
+                data.constants["dt"] = 1
+                data.constants["update_speed"] = 1
+        else:
+            data.constants["time_step"] = 1
+            data.constants["dt"] = 1
+            data.constants["update_speed"] = 1
+            blackhole = 0
+        for body in data.bodies:
+            print(body.info)
+
+    def reset_switcher(self, event=None) -> None:
+        global reset_switch
+        reset_switch = 1
 
     @staticmethod
     def add_move(event=None) -> None:
